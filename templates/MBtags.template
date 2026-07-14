@@ -1,0 +1,14 @@
+{
+  "temp": "[th0temp-act]",
+  "hum": "[th0hum-act]",
+  "wind": "[wind0wind-act]",
+  "gust": "[wind0gust-act]",
+  "dir": "[wind0dir-act]",
+  "pressure": "[thb0seapress-act]",
+  "rain": "[rain0total-daysum]",
+  "uv": "[uv0index-act]",
+  "solar": "[sol0rad-act]",
+  "dew": "[th0dew-act]",
+  "feels": "[th0heatindex-act]",
+  "time": "[YYYY]-[MM]-[DD] [hh]:[mm]:[ss]"
+}
