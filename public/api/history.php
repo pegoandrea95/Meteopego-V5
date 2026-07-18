@@ -2,43 +2,36 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../app/Models/Database.php';
+require_once __DIR__ . '/../../app/Models/WeatherModel.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 try {
 
-    $db = Database::getConnection();
+    $hours = isset($_GET['hours'])
+        ? max(1, (int) $_GET['hours'])
+        : 24;
 
-    $stmt = $db->query("
-        SELECT *
-
-        FROM weather
-
-        ORDER BY created_at DESC
-
-        LIMIT 500
-    ");
+    $weather = new WeatherModel();
 
     echo json_encode(
 
-        $stmt->fetchAll(PDO::FETCH_ASSOC),
+        $weather->getHistory($hours),
 
-        JSON_PRETTY_PRINT
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
 
     );
 
-}
-catch(Throwable $e){
+} catch (Throwable $e) {
 
     http_response_code(500);
 
     echo json_encode([
 
-        'success'=>false,
+        'success' => false,
 
-        'message'=>$e->getMessage()
+        'message' => $e->getMessage()
 
-    ]);
+    ], JSON_PRETTY_PRINT);
 
 }

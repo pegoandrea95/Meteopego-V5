@@ -1,58 +1,213 @@
 <?php
 
+declare(strict_types=1);
+
+require_once __DIR__ . '/Database.php';
+
 class WeatherModel
 {
-    private string $jsonFile;
+    private PDO $db;
 
     public function __construct()
     {
-        $this->jsonFile = __DIR__ . '/../../data/current.json';
+        $this->db = Database::getConnection();
     }
 
-    public function getCurrent(): array
+    /**
+     * Restituisce l'ultima rilevazione meteo
+     */
+    public function getCurrent(): ?array
     {
-        if (!file_exists($this->jsonFile)) {
+        $stmt = $this->db->query("
+            SELECT
+                id,
+                created_at,
+                temperature,
+                humidity,
+                pressure,
+                wind,
+                gust,
+                winddir,
+                rain,
+                uv
+            FROM weather
+            ORDER BY created_at DESC
+            LIMIT 1
+        ");
 
-            return [
-                'success' => false,
-                'message' => 'current.json non trovato'
-            ];
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        }
+        return $row ?: null;
+    }
 
-        $json = file_get_contents($this->jsonFile);
+    /**
+     * Restituisce gli ultimi record
+     */
+    public function getLatest(int $limit = 100): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                created_at,
+                temperature,
+                humidity,
+                pressure,
+                wind,
+                gust,
+                winddir,
+                rain,
+                uv
+            FROM weather
+            ORDER BY created_at DESC
+            LIMIT :limit
+        ");
 
-        $data = json_decode($json, true);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
 
-        if (!$data) {
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-            return [
-                'success' => false,
-                'message' => 'JSON non valido'
-            ];
+    /**
+     * Restituisce lo storico delle ultime ore
+     * Compatibile con SQLite
+     */
+    public function getHistory(int $hours = 24): array
+    {
+        $hours = max(1, $hours);
 
-        }
+        $fromDate = date(
+            'Y-m-d H:i:s',
+            strtotime("-{$hours} hours")
+        );
 
-        return [
-            'success' => true,
+        $stmt = $this->db->prepare("
+            SELECT
+                created_at,
+                temperature,
+                humidity,
+                pressure,
+                wind,
+                gust,
+                winddir,
+                rain,
+                uv
+            FROM weather
+            WHERE created_at >= :fromDate
+            ORDER BY created_at ASC
+        ");
 
-            'temperature' => $data['temperature'] ?? null,
+        $stmt->bindValue(':fromDate', $fromDate);
+        $stmt->execute();
 
-            'humidity' => $data['humidity'] ?? null,
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-            'pressure' => $data['pressure'] ?? null,
+    /**
+     * Temperatura minima
+     */
+    public function getMinTemperature(int $hours = 24): ?float
+    {
+        $fromDate = date(
+            'Y-m-d H:i:s',
+            strtotime("-{$hours} hours")
+        );
 
-            'wind' => $data['wind'] ?? null,
+        $stmt = $this->db->prepare("
+            SELECT MIN(temperature)
+            FROM weather
+            WHERE created_at >= :fromDate
+        ");
 
-            'gust' => $data['gust'] ?? null,
+        $stmt->bindValue(':fromDate', $fromDate);
+        $stmt->execute();
 
-            'winddir' => $data['winddir'] ?? null,
+        $value = $stmt->fetchColumn();
 
-            'rain' => $data['rain'] ?? null,
+        return $value !== false ? (float)$value : null;
+    }
 
-            'uv' => $data['uv'] ?? null,
+    /**
+     * Temperatura massima
+     */
+    public function getMaxTemperature(int $hours = 24): ?float
+    {
+        $fromDate = date(
+            'Y-m-d H:i:s',
+            strtotime("-{$hours} hours")
+        );
 
-            'timestamp' => $data['timestamp'] ?? date('Y-m-d H:i:s')
-        ];
+        $stmt = $this->db->prepare("
+            SELECT MAX(temperature)
+            FROM weather
+            WHERE created_at >= :fromDate
+        ");
+
+        $stmt->bindValue(':fromDate', $fromDate);
+        $stmt->execute();
+
+        $value = $stmt->fetchColumn();
+
+        return $value !== false ? (float)$value : null;
+    }
+
+    /**
+     * Pioggia totale
+     */
+    public function getTotalRain(int $hours = 24): ?float
+    {
+        $fromDate = date(
+            'Y-m-d H:i:s',
+            strtotime("-{$hours} hours")
+        );
+
+        $stmt = $this->db->prepare("
+            SELECT SUM(rain)
+            FROM weather
+            WHERE created_at >= :fromDate
+        ");
+
+        $stmt->bindValue(':fromDate', $fromDate);
+        $stmt->execute();
+
+        $value = $stmt->fetchColumn();
+
+        return $value !== false ? (float)$value : null;
+    }
+
+    /**
+     * Vento massimo
+     */
+    public function getMaxWind(int $hours = 24): ?float
+    {
+        $fromDate = date(
+            'Y-m-d H:i:s',
+            strtotime("-{$hours} hours")
+        );
+
+        $stmt = $this->db->prepare("
+            SELECT MAX(wind)
+            FROM weather
+            WHERE created_at >= :fromDate
+        ");
+
+        $stmt->bindValue(':fromDate', $fromDate);
+        $stmt->execute();
+
+        $value = $stmt->fetchColumn();
+
+        return $value !== false ? (float)$value : null;
+    }
+
+    /**
+     * Numero totale dei record
+     */
+    public function countRecords(): int
+    {
+        $stmt = $this->db->query("
+            SELECT COUNT(*)
+            FROM weather
+        ");
+
+        return (int)$stmt->fetchColumn();
     }
 }
