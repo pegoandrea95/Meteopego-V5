@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../app/Models/Database.php';
+require_once __DIR__ . '/../../app/Models/Database.php';
 require_once __DIR__ . '/../app/Models/WeatherModel.php';
 
 header('Content-Type: application/json');
