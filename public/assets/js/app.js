@@ -1,76 +1,75 @@
-// Meteopego V4
-// Aggiornamento automatico dashboard
-
 async function aggiornaMeteo() {
+
     try {
 
-        const response = await fetch('/weather.php');
+        const response = await fetch('/api/weather.php?' + Date.now());
 
-        if (!response.ok) {
-            throw new Error('Errore HTTP ' + response.status);
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error(data.message);
+            return;
         }
 
-        const dati = await response.json();
+        aggiorna('temp', data.temperature, '°C');
+        aggiorna('hum', data.humidity, '%');
+        aggiorna('pressure', data.pressure, ' hPa');
+        aggiorna('wind', data.wind, ' km/h');
+        aggiorna('rain', data.rain ?? 0, ' mm');
+        aggiorna('uv', data.uv ?? '--', '');
 
-        // Temperatura
-        if (document.getElementById('temp')) {
-            document.getElementById('temp').textContent =
-                dati.temperature + " °C";
+        const ts = document.getElementById('last-update');
+
+        if (ts) {
+            ts.textContent = data.timestamp;
         }
 
-        // Umidità
-        if (document.getElementById('hum')) {
-            document.getElementById('hum').textContent =
-                dati.humidity + " %";
+        const status = document.getElementById('station-status');
+
+        if (status) {
+
+            status.className = "badge bg-success";
+
+            status.textContent = "🟢 Online";
+
         }
 
-        // Pressione
-        if (document.getElementById('pressure')) {
-            document.getElementById('pressure').textContent =
-                dati.pressure + " hPa";
+    } catch (e) {
+
+        console.error(e);
+
+        const status = document.getElementById('station-status');
+
+        if (status) {
+
+            status.className = "badge bg-danger";
+
+            status.textContent = "🔴 Offline";
+
         }
-
-        // Vento
-        if (document.getElementById('wind')) {
-            document.getElementById('wind').textContent =
-                dati.wind + " km/h";
-        }
-
-        // Pioggia (non ancora disponibile)
-        if (document.getElementById('rain')) {
-            if (dati.rain !== undefined) {
-                document.getElementById('rain').textContent =
-                    dati.rain + " mm";
-            } else {
-                document.getElementById('rain').textContent = "-- mm";
-            }
-        }
-
-        // UV (non ancora disponibile)
-        if (document.getElementById('uv')) {
-            if (dati.uv !== undefined) {
-                document.getElementById('uv').textContent = dati.uv;
-            } else {
-                document.getElementById('uv').textContent = "--";
-            }
-        }
-
-    } catch (errore) {
-
-        console.error("Errore Meteopego:", errore);
-
-        ["temp","hum","pressure","wind","rain","uv"].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.textContent = "--";
-            }
-        });
 
     }
+
 }
 
-// Primo caricamento
+function aggiorna(id, valore, unita = '') {
+
+    const el = document.getElementById(id);
+
+    if (!el) return;
+
+    if (valore === null || valore === undefined || valore === '') {
+
+        el.textContent = '--';
+
+        return;
+
+    }
+
+    el.textContent = valore + unita;
+
+}
+
 aggiornaMeteo();
 
-// Aggiornamento ogni 30 secondi
 setInterval(aggiornaMeteo, 30000);
