@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Finder
+__MACOSX/
+
+# VS Code
+.vscode/
+
+# Log
+*.log
+
+# Cache
+cache/
+
+# Database SQLite (se non vuoi versionarlo)
+storage/database/*.sqlite
+
+# File temporanei
+*.tmp
+*.bak
+*.swp
+
+# Thumbnails
+Thumbs.db
