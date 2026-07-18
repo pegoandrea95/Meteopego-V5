@@ -1,26 +1,30 @@
 <?php
 
-namespace App\Services;
+declare(strict_types=1);
 
 class Config
 {
-    private static array $config;
-
-    public static function load(): void
+    public static function station(): array
     {
-        if (!isset(self::$config)) {
-            self::$config = include __DIR__ . '/../../config/config.php';
-        }
+        return [
+
+            'name' => 'Meteopego',
+
+            'location' => 'Marghera (VE)',
+
+            'updateInterval' => 30
+
+        ];
     }
 
-    public static function get(string $section, ?string $key = null)
+    public static function paths(): array
     {
-        self::load();
+        return [
 
-        if ($key === null) {
-            return self::$config[$section] ?? null;
-        }
+            'json' => __DIR__ . '/../../data/current.json',
 
-        return self::$config[$section][$key] ?? null;
+            'database' => __DIR__ . '/../../storage/database/meteopego.sqlite'
+
+        ];
     }
 }

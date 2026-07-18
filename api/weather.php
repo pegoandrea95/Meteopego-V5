@@ -1,32 +1,67 @@
 <?php
 
-header('Content-Type: application/json');
+declare(strict_types=1);
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/../app/Models/WeatherModel.php';
 
-$username = "meteobridge";
-$password = "7365sdw25";
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 
-$url = "http://192.168.1.234/cgi-bin/template.cgi?template=[th0temp-act]";
+try {
 
-$opts = [
-    "http" => [
-        "header" => "Authorization: Basic " . base64_encode($username . ":" . $password)
-    ]
-];
+    $weather = new WeatherModel();
 
-$context = stream_context_create($opts);
+    $data = $weather->getCurrent();
 
-$temp = @file_get_contents($url, false, $context);
+    if (!$data['success']) {
 
-if ($temp === false) {
+        http_response_code(500);
+
+        echo json_encode([
+            'success' => false,
+            'message' => $data['message']
+        ], JSON_PRETTY_PRINT);
+
+        exit;
+    }
+
     echo json_encode([
-        "errore" => "Impossibile collegarsi al Meteobridge"
-    ]);
-    exit;
-}
 
-echo json_encode([
-    "temperatura" => trim($temp)
-]);
+        'success'     => true,
+
+        'station'     => 'Meteopego',
+
+        'location'    => 'Marghera (VE)',
+
+        'temperature' => $data['temperature'],
+
+        'humidity'    => $data['humidity'],
+
+        'pressure'    => $data['pressure'],
+
+        'wind'        => $data['wind'],
+
+        'gust'        => $data['gust'],
+
+        'winddir'     => $data['winddir'],
+
+        'rain'        => $data['rain'],
+
+        'uv'          => $data['uv'],
+
+        'timestamp'   => $data['timestamp']
+
+    ], JSON_PRETTY_PRINT);
+
+} catch (Throwable $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ], JSON_PRETTY_PRINT);
+
+}

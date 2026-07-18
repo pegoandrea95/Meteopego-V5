@@ -1,31 +1,54 @@
 <?php
 
+declare(strict_types=1);
+
 class Database
 {
-    private static ?PDO $pdo = null;
+    private static ?PDO $connection = null;
 
-    public static function connection(): PDO
+    public static function getConnection(): PDO
     {
-        if (self::$pdo === null) {
+        if (self::$connection === null) {
 
-            $db = __DIR__ . '/../storage/database/meteopego.sqlite';
+            $database = __DIR__ . '/../../storage/database/meteopego.sqlite';
 
-            self::$pdo = new PDO('sqlite:' . $db);
+            self::$connection = new PDO(
+                'sqlite:' . $database
+            );
 
-            self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            self::$connection->setAttribute(
+                PDO::ATTR_ERRMODE,
+                PDO::ERRMODE_EXCEPTION
+            );
 
-            self::$pdo->exec("
+            self::$connection->exec("
                 CREATE TABLE IF NOT EXISTS weather (
+
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
                     temperature REAL,
+
                     humidity REAL,
+
                     pressure REAL,
-                    wind REAL
-                );
+
+                    wind REAL,
+
+                    gust REAL,
+
+                    winddir TEXT,
+
+                    rain REAL,
+
+                    uv REAL
+
+                )
             ");
+
         }
 
-        return self::$pdo;
+        return self::$connection;
     }
 }
