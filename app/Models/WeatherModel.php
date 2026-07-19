@@ -14,75 +14,51 @@ class WeatherModel
     }
 
     /**
-     * Restituisce l'ultima rilevazione meteo
+     * Restituisce l'ultima rilevazione
      */
-    public function getCurrent(): ?array
+    public function getLatest(): ?array
     {
-        $stmt = $this->db->query("
-            SELECT
-                id,
-                created_at,
-                temperature,
-                humidity,
-                pressure,
-                wind,
-                gust,
-                winddir,
-                rain,
-                uv
+        $stmt = $this->db->prepare("
+            SELECT *
             FROM weather
             ORDER BY created_at DESC
             LIMIT 1
         ");
 
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute();
 
-        return $row ?: null;
+        $result = $stmt->fetch();
+
+        return $result ?: null;
     }
 
     /**
-     * Restituisce gli ultimi record
+     * Restituisce lo storico
      */
-    public function getLatest(int $limit = 100): array
+    public function getHistory(int $limit = 500): array
     {
         $stmt = $this->db->prepare("
-            SELECT
-                created_at,
-                temperature,
-                humidity,
-                pressure,
-                wind,
-                gust,
-                winddir,
-                rain,
-                uv
+            SELECT *
             FROM weather
             ORDER BY created_at DESC
             LIMIT :limit
         ");
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
         $stmt->execute();
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
 
     /**
-     * Restituisce lo storico delle ultime ore
-     * Compatibile con SQLite
+     * Inserisce una nuova rilevazione
      */
-    public function getHistory(int $hours = 24): array
+    public function insert(array $data): bool
     {
-        $hours = max(1, $hours);
-
-        $fromDate = date(
-            'Y-m-d H:i:s',
-            strtotime("-{$hours} hours")
-        );
-
         $stmt = $this->db->prepare("
-            SELECT
-                created_at,
+            INSERT INTO weather (
+
                 temperature,
                 humidity,
                 pressure,
@@ -91,123 +67,90 @@ class WeatherModel
                 winddir,
                 rain,
                 uv
-            FROM weather
-            WHERE created_at >= :fromDate
-            ORDER BY created_at ASC
+
+            ) VALUES (
+
+                :temperature,
+                :humidity,
+                :pressure,
+                :wind,
+                :gust,
+                :winddir,
+                :rain,
+                :uv
+
+            )
         ");
 
-        $stmt->bindValue(':fromDate', $fromDate);
-        $stmt->execute();
+        return $stmt->execute([
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            ':temperature' => $data['temperature'] ?? null,
+            ':humidity'    => $data['humidity'] ?? null,
+            ':pressure'    => $data['pressure'] ?? null,
+            ':wind'        => $data['wind'] ?? null,
+            ':gust'        => $data['gust'] ?? null,
+            ':winddir'     => $data['winddir'] ?? null,
+            ':rain'        => $data['rain'] ?? null,
+            ':uv'          => $data['uv'] ?? null
+
+        ]);
     }
 
     /**
-     * Temperatura minima
+     * Pioggia di oggi
      */
-    public function getMinTemperature(int $hours = 24): ?float
-    {
-        $fromDate = date(
-            'Y-m-d H:i:s',
-            strtotime("-{$hours} hours")
-        );
-
-        $stmt = $this->db->prepare("
-            SELECT MIN(temperature)
-            FROM weather
-            WHERE created_at >= :fromDate
-        ");
-
-        $stmt->bindValue(':fromDate', $fromDate);
-        $stmt->execute();
-
-        $value = $stmt->fetchColumn();
-
-        return $value !== false ? (float)$value : null;
-    }
-
-    /**
-     * Temperatura massima
-     */
-    public function getMaxTemperature(int $hours = 24): ?float
-    {
-        $fromDate = date(
-            'Y-m-d H:i:s',
-            strtotime("-{$hours} hours")
-        );
-
-        $stmt = $this->db->prepare("
-            SELECT MAX(temperature)
-            FROM weather
-            WHERE created_at >= :fromDate
-        ");
-
-        $stmt->bindValue(':fromDate', $fromDate);
-        $stmt->execute();
-
-        $value = $stmt->fetchColumn();
-
-        return $value !== false ? (float)$value : null;
-    }
-
-    /**
-     * Pioggia totale
-     */
-    public function getTotalRain(int $hours = 24): ?float
-    {
-        $fromDate = date(
-            'Y-m-d H:i:s',
-            strtotime("-{$hours} hours")
-        );
-
-        $stmt = $this->db->prepare("
-            SELECT SUM(rain)
-            FROM weather
-            WHERE created_at >= :fromDate
-        ");
-
-        $stmt->bindValue(':fromDate', $fromDate);
-        $stmt->execute();
-
-        $value = $stmt->fetchColumn();
-
-        return $value !== false ? (float)$value : null;
-    }
-
-    /**
-     * Vento massimo
-     */
-    public function getMaxWind(int $hours = 24): ?float
-    {
-        $fromDate = date(
-            'Y-m-d H:i:s',
-            strtotime("-{$hours} hours")
-        );
-
-        $stmt = $this->db->prepare("
-            SELECT MAX(wind)
-            FROM weather
-            WHERE created_at >= :fromDate
-        ");
-
-        $stmt->bindValue(':fromDate', $fromDate);
-        $stmt->execute();
-
-        $value = $stmt->fetchColumn();
-
-        return $value !== false ? (float)$value : null;
-    }
-
-    /**
-     * Numero totale dei record
-     */
-    public function countRecords(): int
+    public function getRainToday(): float
     {
         $stmt = $this->db->query("
-            SELECT COUNT(*)
+            SELECT SUM(rain) AS total
             FROM weather
+            WHERE DATE(created_at)=CURDATE()
         ");
 
-        return (int)$stmt->fetchColumn();
+        $row = $stmt->fetch();
+
+        return (float) ($row['total'] ?? 0);
+    }
+
+    /**
+     * Raffica massima oggi
+     */
+    public function getMaxWind(): float
+    {
+        $stmt = $this->db->query("
+            SELECT MAX(gust) AS maxgust
+            FROM weather
+            WHERE DATE(created_at)=CURDATE()
+        ");
+
+        $row = $stmt->fetch();
+
+        return (float) ($row['maxgust'] ?? 0);
+    }
+
+    /**
+     * Statistiche generali
+     */
+    public function getStatistics(): array
+    {
+        $stmt = $this->db->query("
+            SELECT
+
+                MIN(temperature) AS min_temp,
+                MAX(temperature) AS max_temp,
+                AVG(temperature) AS avg_temp,
+
+                MIN(humidity) AS min_humidity,
+                MAX(humidity) AS max_humidity,
+
+                MAX(gust) AS max_gust,
+
+                SUM(rain) AS total_rain
+
+            FROM weather
+            WHERE DATE(created_at)=CURDATE()
+        ");
+
+        return $stmt->fetch() ?: [];
     }
 }
