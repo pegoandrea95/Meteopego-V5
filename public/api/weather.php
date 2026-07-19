@@ -2,56 +2,50 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../app/Models/WeatherModel.php';
-
 header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-cache, no-store, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
+
+require_once __DIR__ . '/../../app/Models/WeatherModel.php';
 
 try {
 
     $weather = new WeatherModel();
 
-    $data = $weather->getCurrent();
+    $latest = $weather->getLatest();
 
-    if (!$data['success']) {
+    if ($latest === null) {
 
-        http_response_code(500);
+        http_response_code(404);
 
         echo json_encode([
             'success' => false,
-            'message' => $data['message']
-        ], JSON_PRETTY_PRINT);
+            'message' => 'Nessuna rilevazione disponibile.'
+        ]);
 
         exit;
+
     }
 
     echo json_encode([
 
         'success'     => true,
 
-        'station'     => 'Meteopego',
+        'temperature' => $latest['temperature'],
 
-        'location'    => 'Marghera (VE)',
+        'humidity'    => $latest['humidity'],
 
-        'temperature' => $data['temperature'],
+        'pressure'    => $latest['pressure'],
 
-        'humidity'    => $data['humidity'],
+        'wind'        => $latest['wind'],
 
-        'pressure'    => $data['pressure'],
+        'gust'        => $latest['gust'],
 
-        'wind'        => $data['wind'],
+        'winddir'     => $latest['winddir'],
 
-        'gust'        => $data['gust'],
+        'rain'        => $latest['rain'],
 
-        'winddir'     => $data['winddir'],
+        'uv'          => $latest['uv'],
 
-        'rain'        => $data['rain'],
-
-        'uv'          => $data['uv'],
-
-        'timestamp'   => $data['timestamp']
+        'timestamp'   => $latest['created_at']
 
     ], JSON_PRETTY_PRINT);
 
@@ -60,8 +54,11 @@ try {
     http_response_code(500);
 
     echo json_encode([
+
         'success' => false,
+
         'message' => $e->getMessage()
+
     ], JSON_PRETTY_PRINT);
 
 }

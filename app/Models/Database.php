@@ -7,7 +7,7 @@ class Database
     private static ?PDO $connection = null;
 
     /**
-     * Restituisce la connessione PDO (singleton)
+     * Restituisce la connessione PDO (Singleton)
      */
     public static function getConnection(): PDO
     {
@@ -44,10 +44,7 @@ class Database
 
         } catch (PDOException $e) {
 
-            die(
-                'Errore connessione database: ' .
-                $e->getMessage()
-            );
+            die('Errore connessione database: ' . $e->getMessage());
 
         }
 
@@ -55,7 +52,7 @@ class Database
     }
 
     /**
-     * Crea automaticamente le tabelle se non esistono
+     * Crea automaticamente la tabella weather
      */
     private static function createTables(): void
     {
@@ -95,13 +92,13 @@ SQL;
     }
 
     /**
-     * Verifica connessione
+     * Verifica la connessione al database
      */
     public static function ping(): bool
     {
         try {
 
-            self::getConnection()->query("SELECT 1");
+            self::getConnection()->query('SELECT 1');
 
             return true;
 
