@@ -6,49 +6,109 @@ class Database
 {
     private static ?PDO $connection = null;
 
+    /**
+     * Restituisce la connessione PDO (singleton)
+     */
     public static function getConnection(): PDO
     {
-        if (self::$connection === null) {
+        if (self::$connection instanceof PDO) {
+            return self::$connection;
+        }
+
+        $config = require __DIR__ . '/../../config.php';
+
+        $db = $config['database'];
+
+        $dsn = sprintf(
+            'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+            $db['host'],
+            $db['port'],
+            $db['database'],
+            $db['charset']
+        );
+
+        try {
 
             self::$connection = new PDO(
-                "mysql:host=localhost;dbname=meteopego;charset=utf8mb4",
-                "meteopego",
-                "Tornado25!",
+                $dsn,
+                $db['username'],
+                $db['password'],
                 [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::ATTR_EMULATE_PREPARES   => false,
                 ]
             );
 
-            self::$connection->exec("
-                CREATE TABLE IF NOT EXISTS weather (
+            self::createTables();
 
-                    id INT AUTO_INCREMENT PRIMARY KEY,
+        } catch (PDOException $e) {
 
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            die(
+                'Errore connessione database: ' .
+                $e->getMessage()
+            );
 
-                    temperature DOUBLE NULL,
-
-                    humidity DOUBLE NULL,
-
-                    pressure DOUBLE NULL,
-
-                    wind DOUBLE NULL,
-
-                    gust DOUBLE NULL,
-
-                    winddir VARCHAR(10) NULL,
-
-                    rain DOUBLE NULL,
-
-                    uv DOUBLE NULL
-
-                ) ENGINE=InnoDB
-                DEFAULT CHARSET=utf8mb4;
-            ");
         }
 
         return self::$connection;
+    }
+
+    /**
+     * Crea automaticamente le tabelle se non esistono
+     */
+    private static function createTables(): void
+    {
+        $sql = <<<SQL
+
+CREATE TABLE IF NOT EXISTS weather (
+
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    temperature DECIMAL(5,2) DEFAULT NULL,
+
+    humidity DECIMAL(5,2) DEFAULT NULL,
+
+    pressure DECIMAL(6,2) DEFAULT NULL,
+
+    wind DECIMAL(5,2) DEFAULT NULL,
+
+    gust DECIMAL(5,2) DEFAULT NULL,
+
+    winddir VARCHAR(10) DEFAULT NULL,
+
+    rain DECIMAL(6,2) DEFAULT NULL,
+
+    uv DECIMAL(4,2) DEFAULT NULL,
+
+    INDEX idx_created_at (created_at)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+SQL;
+
+        self::$connection->exec($sql);
+    }
+
+    /**
+     * Verifica connessione
+     */
+    public static function ping(): bool
+    {
+        try {
+
+            self::getConnection()->query("SELECT 1");
+
+            return true;
+
+        } catch (Throwable) {
+
+            return false;
+
+        }
     }
 }
