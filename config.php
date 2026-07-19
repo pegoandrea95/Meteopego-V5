@@ -1,35 +1,67 @@
 <?php
 
-/**
- * Meteopego V4 Phoenix
- * Configurazione principale
- */
+declare(strict_types=1);
 
 return [
 
+    /*
+    |--------------------------------------------------------------------------
+    | Sito
+    |--------------------------------------------------------------------------
+    */
+
     'site' => [
-        'name' => 'Meteopego Stazione',
-        'domain' => 'meteopegostazione.it',
-        'timezone' => 'Europe/Rome',
-        'language' => 'it',
+
+        'title'       => 'Meteopego Stazione',
+
+        'description' => 'Stazione Meteorologica di Marghera (VE)',
+
+        'timezone'    => 'Europe/Rome',
+
+        'version'     => '5.1.0'
+
     ],
 
-    'station' => [
-        'city' => 'Marghera',
-        'province' => 'VE',
-        'country' => 'Italia',
+    /*
+    |--------------------------------------------------------------------------
+    | Database MariaDB
+    |--------------------------------------------------------------------------
+    */
 
-        'latitude' => '45.471686',
-        'longitude' => '12.216167',
-        'altitude' => 3,
+    'database' => [
 
-        'hardware' => 'VENTUS W835',
+        'driver'   => 'mysql',
+
+        'host'     => 'localhost',
+
+        'port'     => 3306,
+
+        'database' => 'meteopego',
+
+        'username' => 'meteopego',
+
+        'password' => 'Tornado25!',
+
+        'charset'  => 'utf8mb4'
+
     ],
 
-    'meteobridge' => [
-        'host' => '192.168.1.234',
-        'port' => 80,
-        'api' => '/livedata.htm',
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Meteo
+    |--------------------------------------------------------------------------
+    */
+
+    'weather' => [
+
+        'station' => 'Ventus W835',
+
+        'gateway' => 'Meteobridge',
+
+        'location' => 'Marghera (VE)',
+
+        'refresh' => 30
+
+    ]
 
 ];
