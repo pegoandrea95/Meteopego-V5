@@ -10,43 +10,43 @@ class Database
     {
         if (self::$connection === null) {
 
-            $database = __DIR__ . '/../../storage/database/meteopego.sqlite';
-
             self::$connection = new PDO(
-                'sqlite:' . $database
-            );
-
-            self::$connection->setAttribute(
-                PDO::ATTR_ERRMODE,
-                PDO::ERRMODE_EXCEPTION
+                "mysql:host=localhost;dbname=meteopego;charset=utf8mb4",
+                "meteopego",
+                "Tornado25!",
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]
             );
 
             self::$connection->exec("
                 CREATE TABLE IF NOT EXISTS weather (
 
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id INT AUTO_INCREMENT PRIMARY KEY,
 
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-                    temperature REAL,
+                    temperature DOUBLE NULL,
 
-                    humidity REAL,
+                    humidity DOUBLE NULL,
 
-                    pressure REAL,
+                    pressure DOUBLE NULL,
 
-                    wind REAL,
+                    wind DOUBLE NULL,
 
-                    gust REAL,
+                    gust DOUBLE NULL,
 
-                    winddir TEXT,
+                    winddir VARCHAR(10) NULL,
 
-                    rain REAL,
+                    rain DOUBLE NULL,
 
-                    uv REAL
+                    uv DOUBLE NULL
 
-                )
+                ) ENGINE=InnoDB
+                DEFAULT CHARSET=utf8mb4;
             ");
-
         }
 
         return self::$connection;
