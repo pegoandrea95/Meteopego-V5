@@ -41,6 +41,7 @@ class Database
             );
 
             self::createTables();
+            self::updateSchema();
 
         } catch (PDOException $e) {
 
@@ -52,10 +53,11 @@ class Database
     }
 
     /**
-     * Crea automaticamente la tabella weather
+     * Crea la tabella weather
      */
     private static function createTables(): void
     {
+
         $sql = <<<SQL
 
 CREATE TABLE IF NOT EXISTS weather (
@@ -80,6 +82,12 @@ CREATE TABLE IF NOT EXISTS weather (
 
     uv DECIMAL(4,2) DEFAULT NULL,
 
+    solar DECIMAL(7,2) DEFAULT NULL,
+
+    dew DECIMAL(5,2) DEFAULT NULL,
+
+    feels DECIMAL(5,2) DEFAULT NULL,
+
     INDEX idx_created_at (created_at)
 
 ) ENGINE=InnoDB
@@ -89,13 +97,53 @@ COLLATE=utf8mb4_unicode_ci;
 SQL;
 
         self::$connection->exec($sql);
+
     }
 
     /**
-     * Verifica la connessione al database
+     * Aggiorna automaticamente lo schema
+     */
+    private static function updateSchema(): void
+    {
+
+        $columns = [
+
+            'solar' => 'ALTER TABLE weather ADD COLUMN solar DECIMAL(7,2) DEFAULT NULL',
+
+            'dew' => 'ALTER TABLE weather ADD COLUMN dew DECIMAL(5,2) DEFAULT NULL',
+
+            'feels' => 'ALTER TABLE weather ADD COLUMN feels DECIMAL(5,2) DEFAULT NULL'
+
+        ];
+
+        foreach ($columns as $column => $sql) {
+
+            $stmt = self::$connection->prepare("
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'weather'
+                AND COLUMN_NAME = ?
+            ");
+
+            $stmt->execute([$column]);
+
+            if (!$stmt->fetchColumn()) {
+
+                self::$connection->exec($sql);
+
+            }
+
+        }
+
+    }
+
+    /**
+     * Test connessione
      */
     public static function ping(): bool
     {
+
         try {
 
             self::getConnection()->query('SELECT 1');
@@ -107,5 +155,7 @@ SQL;
             return false;
 
         }
+
     }
+
 }

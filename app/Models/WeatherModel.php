@@ -27,9 +27,7 @@ class WeatherModel
 
         $stmt->execute();
 
-        $result = $stmt->fetch();
-
-        return $result ?: null;
+        return $stmt->fetch() ?: null;
     }
 
     /**
@@ -66,7 +64,10 @@ class WeatherModel
                 gust,
                 winddir,
                 rain,
-                uv
+                uv,
+                solar,
+                dew,
+                feels
 
             ) VALUES (
 
@@ -77,7 +78,10 @@ class WeatherModel
                 :gust,
                 :winddir,
                 :rain,
-                :uv
+                :uv,
+                :solar,
+                :dew,
+                :feels
 
             )
         ");
@@ -91,7 +95,10 @@ class WeatherModel
             ':gust'        => $data['gust'] ?? null,
             ':winddir'     => $data['winddir'] ?? null,
             ':rain'        => $data['rain'] ?? null,
-            ':uv'          => $data['uv'] ?? null
+            ':uv'          => $data['uv'] ?? null,
+            ':solar'       => $data['solar'] ?? null,
+            ':dew'         => $data['dew'] ?? null,
+            ':feels'       => $data['feels'] ?? null
 
         ]);
     }
@@ -109,7 +116,7 @@ class WeatherModel
 
         $row = $stmt->fetch();
 
-        return (float) ($row['total'] ?? 0);
+        return (float)($row['total'] ?? 0);
     }
 
     /**
@@ -125,11 +132,11 @@ class WeatherModel
 
         $row = $stmt->fetch();
 
-        return (float) ($row['maxgust'] ?? 0);
+        return (float)($row['maxgust'] ?? 0);
     }
 
     /**
-     * Statistiche generali
+     * Statistiche giornaliere
      */
     public function getStatistics(): array
     {
@@ -142,12 +149,21 @@ class WeatherModel
 
                 MIN(humidity) AS min_humidity,
                 MAX(humidity) AS max_humidity,
+                AVG(humidity) AS avg_humidity,
+
+                MIN(pressure) AS min_pressure,
+                MAX(pressure) AS max_pressure,
 
                 MAX(gust) AS max_gust,
+
+                MAX(solar) AS max_solar,
+
+                MAX(uv) AS max_uv,
 
                 SUM(rain) AS total_rain
 
             FROM weather
+
             WHERE DATE(created_at)=CURDATE()
         ");
 
