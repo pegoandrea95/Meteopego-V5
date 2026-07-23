@@ -25,3 +25,16 @@ storage/database/*.sqlite
 
 # Thumbnails
 Thumbs.db
+
+ # Configurazione locale
+.env
+
+# macOS
+.DS_Store
+__MACOSX/
+
+# Log
+storage/logs/*.log
+
+# Cache
+storage/cache/*
