@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 $config = require dirname(__DIR__) . '/config.php';
 
+$windy = $config['windy'] ?? [
+    'api_key'   => '',
+    'latitude'  => 45.478,
+    'longitude' => 12.245,
+    'zoom'      => 8,
+];
+
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -12,123 +19,129 @@ $config = require dirname(__DIR__) . '/config.php';
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Radar Meteo | <?= htmlspecialchars($config['site']['title']) ?></title>
+    <title>
 
-    <link rel="stylesheet" href="/assets/css/style.css">
+        Radar Meteo |
+        <?= htmlspecialchars($config['site']['title']) ?>
 
-    <style>
+    </title>
 
-        body{
-            background:#eef5ff;
-            margin:0;
-            font-family:Arial,Helvetica,sans-serif;
-        }
+    <meta
+        name="description"
+        content="Radar meteo in tempo reale della stazione Meteopego.">
 
-        .container{
+    <meta
+        http-equiv="refresh"
+        content="300">
 
-            max-width:1400px;
+    <link
+        rel="stylesheet"
+        href="/assets/css/style.css">
 
-            margin:auto;
+    <link
+        rel="stylesheet"
+        href="/assets/css/radar.css">
 
-            padding:30px;
-
-        }
-
-        h1{
-
-            text-align:center;
-
-            color:#1d4ed8;
-
-            margin-bottom:10px;
-
-        }
-
-        p{
-
-            text-align:center;
-
-            color:#666;
-
-            margin-bottom:30px;
-
-        }
-
-        .radar{
-
-            width:100%;
-
-            height:80vh;
-
-            border-radius:15px;
-
-            overflow:hidden;
-
-            box-shadow:0 8px 30px rgba(0,0,0,.15);
-
-        }
-
-        iframe{
-
-            width:100%;
-
-            height:100%;
-
-            border:none;
-
-        }
-
-    </style>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 </head>
 
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-
-const map = L.map('radar', {
-
-    center: [45.478, 12.245], // Marghera
-
-    zoom: 8,
-
-    zoomControl: true
-
-});
-
-L.tileLayer(
-
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-
-    {
-
-        attribution: '&copy; OpenStreetMap contributors'
-
-    }
-
-).addTo(map);
-
-</script>
-
 <body>
 
-<div class="container">
+<header class="header">
 
     <h1>🛰 Radar Meteo</h1>
 
-    <p>Radar precipitazioni in tempo reale - Marghera (VE)</p>
+    <p>
 
-    <div id="radar" class="radar"></div>
+        Radar precipitazioni in tempo reale -
+        <?= htmlspecialchars($config['weather']['location']) ?>
 
-</div>
+    </p>
+
+</header>
+
+<nav class="toolbar">
+
+    <button id="btnRadar">
+        🛰 Radar
+    </button>
+
+    <button id="btnSatellite">
+        ☁ Satellite
+    </button>
+
+    <button id="btnLightning">
+        ⚡ Fulmini
+    </button>
+
+    <button id="btnWind">
+        🌬 Vento
+    </button>
+
+</nav>
+
+<main class="page">
+
+    <div id="map"></div>
+
+</main>
+
+<footer class="footer">
+
+    <p>
+
+        Ultimo aggiornamento:
+
+        <strong>
+
+            <?= date('d/m/Y H:i:s') ?>
+
+        </strong>
+
+    </p>
+
+</footer>
+
+<script>
+
+window.METEOPEGO = {
+
+    windyKey: "<?= htmlspecialchars($windy['api_key']) ?>",
+
+    latitude: <?= (float)$windy['latitude'] ?>,
+
+    longitude: <?= (float)$windy['longitude'] ?>,
+
+    zoom: <?= (int)$windy['zoom'] ?>
+
+};
+
+</script>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script
+    src="/assets/js/radar.js">
+</script>
+
+<script>
+
+setTimeout(function () {
+
+    location.reload();
+
+}, 300000);
+
+</script>
 
 </body>
 
