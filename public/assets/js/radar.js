@@ -2,36 +2,84 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    console.clear();
+    const config = window.METEOPEGO;
 
-    console.log("1 - JS caricato");
+    windyInit({
 
-    console.log("2 - windyInit =", typeof windyInit);
+        key: config.windyKey,
+        lat: config.latitude,
+        lon: config.longitude,
+        zoom: config.zoom
 
-    try {
+    }, (windyAPI) => {
 
-        windyInit({
+        console.log("✅ Windy inizializzato");
 
-            key: window.METEOPEGO.windyKey,
+        const { map, store } = windyAPI;
 
-            lat: window.METEOPEGO.latitude,
+        // Salva l'istanza globalmente (utile per debug e future funzioni)
+        window.windyAPI = windyAPI;
 
-            lon: window.METEOPEGO.longitude,
+        /*
+        |--------------------------------------------------------------------------
+        | Marker Meteopego
+        |--------------------------------------------------------------------------
+        */
 
-            zoom: window.METEOPEGO.zoom
+        const marker = L.marker([
+            config.latitude,
+            config.longitude
+        ]).addTo(map);
 
-        }, function (windyAPI) {
+        marker.bindPopup(`
+            <strong>📍 Meteopego</strong><br>
+            Marghera (VE)
+        `);
 
-            console.log("3 - CALLBACK ESEGUITO");
+        /*
+        |--------------------------------------------------------------------------
+        | Cambio Overlay
+        |--------------------------------------------------------------------------
+        */
 
-            console.log(windyAPI);
+        function changeOverlay(layer) {
+
+            console.log("Cambio overlay:", layer);
+
+            store.set("overlay", layer);
+
+            // Evidenzia il pulsante attivo
+            document.querySelectorAll(".toolbar button").forEach(button => {
+                button.classList.remove("active");
+            });
+
+            const activeButton = document.querySelector(`[data-layer="${layer}"]`);
+
+            if (activeButton) {
+                activeButton.classList.add("active");
+            }
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Toolbar
+        |--------------------------------------------------------------------------
+        */
+
+        document.querySelectorAll("[data-layer]").forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                changeOverlay(button.dataset.layer);
+
+            });
 
         });
 
-    } catch (e) {
+        // Overlay iniziale
+        changeOverlay("wind");
 
-        console.error("ERRORE:", e);
-
-    }
+    });
 
 });

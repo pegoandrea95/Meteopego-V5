@@ -30,10 +30,8 @@ $windy = $windyService->getConfig();
         content="width=device-width, initial-scale=1">
 
     <title>
-
         Radar Meteo |
         <?= htmlspecialchars($config['site']['title']) ?>
-
     </title>
 
     <meta
@@ -48,7 +46,7 @@ $windy = $windyService->getConfig();
         rel="icon"
         href="<?= asset('assets/images/favicon.ico') ?>">
 
-    <!-- CSS Meteopego -->
+    <!-- CSS -->
     <link
         rel="stylesheet"
         href="<?= asset('assets/css/style.css') ?>">
@@ -57,7 +55,7 @@ $windy = $windyService->getConfig();
         rel="stylesheet"
         href="<?= asset('assets/css/radar.css') ?>">
 
-    <!-- Leaflet (versione compatibile con Windy) -->
+    <!-- Leaflet -->
     <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
@@ -72,7 +70,7 @@ $windy = $windyService->getConfig();
 
     <p>
 
-        Radar precipitazioni in tempo reale -
+        Radar Windy in tempo reale -
         <?= htmlspecialchars($config['weather']['location']) ?>
 
     </p>
@@ -82,19 +80,23 @@ $windy = $windyService->getConfig();
 <nav class="toolbar">
 
     <button id="btnRadar">
-        🛰 Radar
+        🌧 Pioggia
     </button>
 
     <button id="btnSatellite">
-        ☁ Satellite
+        🛰 Satellite
     </button>
 
     <button id="btnWind">
         🌬 Vento
     </button>
 
-    <button id="btnLightning">
-        ⚡ Fulmini
+    <button id="btnTemperature">
+        🌡 Temperatura
+    </button>
+
+    <button id="btnClouds">
+        ☁ Nuvole
     </button>
 
 </nav>
@@ -127,11 +129,11 @@ window.METEOPEGO = {
 
     windyKey: "<?= htmlspecialchars($windy['apiKey']) ?>",
 
-    latitude: <?= $windy['latitude'] ?>,
+    latitude: <?= (float)$windy['latitude'] ?>,
 
-    longitude: <?= $windy['longitude'] ?>,
+    longitude: <?= (float)$windy['longitude'] ?>,
 
-    zoom: <?= $windy['zoom'] ?>
+    zoom: <?= (int)$windy['zoom'] ?>
 
 };
 
@@ -143,30 +145,8 @@ window.METEOPEGO = {
 <!-- Windy SDK -->
 <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
 
-<!-- Meteopego Radar -->
-<!-- <script src="<?= asset('assets/js/radar.js') ?>"></script> -->
-
-<script>
-
-const options = {
-
-    key: "<?= htmlspecialchars($windy['apiKey']) ?>",
-
-    lat: <?= $windy['latitude'] ?>,
-
-    lon: <?= $windy['longitude'] ?>,
-
-    zoom: <?= $windy['zoom'] ?>
-
-};
-
-windyInit(options, function (windyAPI) {
-
-    console.log("Windy caricato da radar.php");
-
-});
-
-</script>
+<!-- Radar JS -->
+<script src="<?= asset('assets/js/radar.js') ?>"></script>
 
 <script>
 

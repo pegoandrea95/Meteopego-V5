@@ -91,3 +91,13 @@ body{
     box-shadow: 0 10px 25px rgba(0,0,0,.15);
 
 }
+
+.toolbar button.active {
+
+    background: #1d4ed8;
+
+    box-shadow: 0 0 12px rgba(37, 99, 235, .4);
+
+    transform: translateY(-1px);
+
+}
