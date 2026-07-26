@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-$config = require dirname(__DIR__) . '/config.php';
+$config = require dirname(__DIR__) . '/bootstrap.php';
 
-$windy = $config['windy'] ?? [
-    'api_key'   => '',
-    'latitude'  => 45.478,
-    'longitude' => 12.245,
-    'zoom'      => 8,
-];
+require_once __DIR__ . '/../app/Services/WindyService.php';
+
+$windyService = new WindyService($config);
+$windy = $windyService->getConfig();
 
 ?>
 <!DOCTYPE html>
@@ -19,33 +17,31 @@ $windy = $config['windy'] ?? [
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>
-
         Radar Meteo |
         <?= htmlspecialchars($config['site']['title']) ?>
-
     </title>
 
-    <meta
-        name="description"
-        content="Radar meteo in tempo reale della stazione Meteopego.">
+    <meta name="description"
+          content="Radar meteo in tempo reale della stazione Meteopego.">
 
-    <meta
-        http-equiv="refresh"
-        content="300">
+    <meta http-equiv="refresh"
+          content="300">
 
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Radar CSS -->
     <link
         rel="stylesheet"
-        href="/assets/css/style.css">
+        href="<?= asset('assets/css/radar.css') ?>">
 
-    <link
-        rel="stylesheet"
-        href="/assets/css/radar.css">
-
+    <!-- Leaflet -->
     <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -113,29 +109,27 @@ $windy = $config['windy'] ?? [
 
 window.METEOPEGO = {
 
-    windyKey: "<?= htmlspecialchars($windy['api_key']) ?>",
+    windyKey: "<?= htmlspecialchars($windy['apiKey']) ?>",
 
-    latitude: <?= (float)$windy['latitude'] ?>,
+    latitude: <?= $windy['latitude'] ?>,
 
-    longitude: <?= (float)$windy['longitude'] ?>,
+    longitude: <?= $windy['longitude'] ?>,
 
-    zoom: <?= (int)$windy['zoom'] ?>
+    zoom: <?= $windy['zoom'] ?>
 
 };
 
 </script>
 
-<script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script
-    src="/assets/js/radar.js">
-</script>
+<!-- Radar JS -->
+<script src="<?= asset('assets/js/radar.js') ?>"></script>
 
 <script>
 
-setTimeout(function () {
+setTimeout(() => {
 
     location.reload();
 
