@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+|--------------------------------------------------------------------------
+| Meteopego V5
+| Radar Windy
+|--------------------------------------------------------------------------
+*/
+
 $config = require dirname(__DIR__) . '/bootstrap.php';
 
 require_once __DIR__ . '/../app/Services/WindyService.php';
@@ -10,6 +17,7 @@ $windyService = new WindyService($config);
 $windy = $windyService->getConfig();
 
 ?>
+
 <!DOCTYPE html>
 <html lang="it">
 
@@ -17,34 +25,42 @@ $windy = $windyService->getConfig();
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1">
 
     <title>
+
         Radar Meteo |
         <?= htmlspecialchars($config['site']['title']) ?>
+
     </title>
 
-    <meta name="description"
-          content="Radar meteo in tempo reale della stazione Meteopego.">
+    <meta
+        name="description"
+        content="Radar meteo in tempo reale della stazione Meteopego">
 
-    <meta http-equiv="refresh"
-          content="300">
+    <meta
+        name="theme-color"
+        content="#2563eb">
 
-    <!-- Bootstrap -->
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+        rel="icon"
+        href="<?= asset('assets/images/favicon.ico') ?>">
 
-    <!-- Radar CSS -->
+    <!-- CSS Meteopego -->
+    <link
+        rel="stylesheet"
+        href="<?= asset('assets/css/style.css') ?>">
+
     <link
         rel="stylesheet"
         href="<?= asset('assets/css/radar.css') ?>">
 
-    <!-- Leaflet -->
+    <!-- Leaflet (versione compatibile con Windy) -->
     <link
         rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+        href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
 
 </head>
 
@@ -73,19 +89,19 @@ $windy = $windyService->getConfig();
         ☁ Satellite
     </button>
 
-    <button id="btnLightning">
-        ⚡ Fulmini
-    </button>
-
     <button id="btnWind">
         🌬 Vento
+    </button>
+
+    <button id="btnLightning">
+        ⚡ Fulmini
     </button>
 
 </nav>
 
 <main class="page">
 
-    <div id="map"></div>
+    <div id="windy"></div>
 
 </main>
 
@@ -93,7 +109,7 @@ $windy = $windyService->getConfig();
 
     <p>
 
-        Ultimo aggiornamento:
+        Ultimo aggiornamento
 
         <strong>
 
@@ -122,10 +138,35 @@ window.METEOPEGO = {
 </script>
 
 <!-- Leaflet -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
 
-<!-- Radar JS -->
-<script src="<?= asset('assets/js/radar.js') ?>"></script>
+<!-- Windy SDK -->
+<script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+
+<!-- Meteopego Radar -->
+<!-- <script src="<?= asset('assets/js/radar.js') ?>"></script> -->
+
+<script>
+
+const options = {
+
+    key: "<?= htmlspecialchars($windy['apiKey']) ?>",
+
+    lat: <?= $windy['latitude'] ?>,
+
+    lon: <?= $windy['longitude'] ?>,
+
+    zoom: <?= $windy['zoom'] ?>
+
+};
+
+windyInit(options, function (windyAPI) {
+
+    console.log("Windy caricato da radar.php");
+
+});
+
+</script>
 
 <script>
 

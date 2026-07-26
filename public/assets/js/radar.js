@@ -2,47 +2,36 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const config = window.METEOPEGO;
+    console.clear();
 
-    const map = L.map("map", {
+    console.log("1 - JS caricato");
 
-    center: [45.478, 12.245],
+    console.log("2 - windyInit =", typeof windyInit);
 
-    zoom: 8,
+    try {
 
-    zoomControl: true
+        windyInit({
 
-});
+            key: window.METEOPEGO.windyKey,
 
-    L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-            attribution: "&copy; OpenStreetMap contributors",
-            maxZoom: 19
-        }
-    ).addTo(map);
+            lat: window.METEOPEGO.latitude,
 
-    L.marker([
-        config.latitude,
-        config.longitude
-    ])
-    .addTo(map)
-    .bindPopup("<b>Meteopego Stazione</b><br>Marghera (VE)");
+            lon: window.METEOPEGO.longitude,
 
-    /*
-     * IMPORTANTISSIMO
-     */
+            zoom: window.METEOPEGO.zoom
 
-    setTimeout(() => {
+        }, function (windyAPI) {
 
-        map.invalidateSize(true);
+            console.log("3 - CALLBACK ESEGUITO");
 
-    }, 100);
+            console.log(windyAPI);
 
-    window.addEventListener("resize", () => {
+        });
 
-        map.invalidateSize(true);
+    } catch (e) {
 
-    });
+        console.error("ERRORE:", e);
+
+    }
 
 });

@@ -80,16 +80,14 @@ body{
 
 }
 
-#map{
+#windy {
 
-    width:100%;
+    width: 100%;
+    height: 80vh;
 
-    height:80vh;
+    border-radius: 15px;
+    overflow: hidden;
 
-    border-radius:15px;
-
-    overflow:hidden;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.15);
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
 
 }
