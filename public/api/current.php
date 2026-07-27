@@ -1,5 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 header('Content-Type: application/json');
 
-echo file_get_contents(__DIR__ . '/../data/current.json');
+$file = dirname(__DIR__, 2) . '/data/current.json';
+
+if (!is_file($file)) {
+
+    http_response_code(404);
+
+    echo json_encode([
+        'error' => 'current.json non trovato'
+    ]);
+
+    exit;
+
+}
+
+readfile($file);

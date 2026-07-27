@@ -145,7 +145,10 @@ window.METEOPEGO = {
 <!-- Windy SDK -->
 <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
 
-<!-- Radar JS -->
+<!-- Meteopego API -->
+<script src="<?= asset('assets/js/weather-api.js') ?>"></script>
+
+<!-- Radar -->
 <script src="<?= asset('assets/js/radar.js') ?>"></script>
 
 <script>
