@@ -59,7 +59,6 @@ $windy = $windyService->getConfig();
     <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
-
 </head>
 
 <body>

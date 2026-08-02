@@ -1,85 +1,189 @@
 "use strict";
 
+let windyAPI = null;
+let map = null;
+let marker = null;
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+
+    iconRetinaUrl: "/assets/images/leaflet/marker-icon-2x.png",
+
+    iconUrl: "/assets/images/leaflet/marker-icon.png",
+
+    shadowUrl: "/assets/images/leaflet/marker-shadow.png"
+
+});
+
+/**
+ * Inizializza la mappa Windy
+ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    const config = window.METEOPEGO;
-
     windyInit({
+        key: window.METEOPEGO.windyKey,
+        lat: window.METEOPEGO.latitude,
+        lon: window.METEOPEGO.longitude,
+        zoom: window.METEOPEGO.zoom
 
-        key: config.windyKey,
-        lat: config.latitude,
-        lon: config.longitude,
-        zoom: config.zoom
+    }, api => {
 
-    }, (windyAPI) => {
+        windyAPI = api;
+        window.windyAPI = api;
 
-        console.log("✅ Windy inizializzato");
+        map = api.map;
 
-        const { map, store } = windyAPI;
+        console.log("✅ Meteopego Radar avviato");
 
-        // Salva l'istanza globalmente (utile per debug e future funzioni)
-        window.windyAPI = windyAPI;
+        createMarker();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Marker Meteopego
-        |--------------------------------------------------------------------------
-        */
+        initToolbar();
 
-        const marker = L.marker([
-            config.latitude,
-            config.longitude
-        ]).addTo(map);
+        loadWeather();
 
-        marker.bindPopup(`
-            <strong>📍 Meteopego</strong><br>
-            Marghera (VE)
-        `);
+        startAutoRefresh();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Cambio Overlay
-        |--------------------------------------------------------------------------
-        */
+    });
 
-        function changeOverlay(layer) {
+});
 
-            console.log("Cambio overlay:", layer);
+/**
+ * Crea il marker della stazione
+ */
+function createMarker() {
 
-            store.set("overlay", layer);
+    marker = L.marker([
+        window.METEOPEGO.latitude,
+        window.METEOPEGO.longitude
+    ]).addTo(map);
 
-            // Evidenzia il pulsante attivo
-            document.querySelectorAll(".toolbar button").forEach(button => {
-                button.classList.remove("active");
-            });
+}
 
-            const activeButton = document.querySelector(`[data-layer="${layer}"]`);
+/**
+ * Carica i dati meteo
+ */
+async function loadWeather() {
 
-            if (activeButton) {
-                activeButton.classList.add("active");
+    try {
+
+        const weather = await getCurrentWeather();
+
+        updatePopup(weather);
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+/**
+ * Aggiorna popup marker
+ */
+function updatePopup(weather) {
+
+    if (!marker) return;
+
+    marker.bindPopup(`
+        <strong>${window.METEOPEGO.stationName}</strong>
+        <hr>
+        🌡 ${weather.temperature} °C<br>
+        💧 ${weather.humidity} %<br>
+        🌬 ${weather.wind} km/h<br>
+        🧭 ${weather.pressure} hPa
+    `);
+
+}
+
+/**
+ * Toolbar overlay
+ */
+function initToolbar() {
+
+    const available = windyAPI.store.getAllowed("overlay");
+
+    console.log("Overlay disponibili:", available);
+
+    document
+        .querySelectorAll("[data-overlay]")
+        .forEach(button => {
+
+            const overlay = button.dataset.overlay;
+
+            /*
+             * Nasconde i pulsanti non disponibili
+             */
+
+            if (!available.includes(overlay)) {
+
+                button.style.display = "none";
+                return;
+
             }
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Toolbar
-        |--------------------------------------------------------------------------
-        */
-
-        document.querySelectorAll("[data-layer]").forEach(button => {
 
             button.addEventListener("click", () => {
 
-                changeOverlay(button.dataset.layer);
+                changeOverlay(overlay);
 
             });
 
         });
 
-        // Overlay iniziale
-        changeOverlay("wind");
+    const current = windyAPI.store.get("overlay");
 
-    });
+    setActiveButton(current);
 
-});
+}
+
+/**
+ * Cambia overlay
+ */
+function changeOverlay(name) {
+
+    if (!windyAPI.store.getAllowed("overlay").includes(name)) {
+
+        console.warn(`Overlay "${name}" non disponibile`);
+
+        return;
+
+    }
+
+    windyAPI.store.set("overlay", name);
+
+    setActiveButton(name);
+
+    console.log("Overlay:", name);
+
+}
+
+/**
+ * Evidenzia il pulsante attivo
+ */
+function setActiveButton(active) {
+
+    document
+        .querySelectorAll("[data-overlay]")
+        .forEach(button => {
+
+            button.classList.remove("active");
+
+            if (button.dataset.overlay === active) {
+
+                button.classList.add("active");
+
+            }
+
+        });
+
+}
+
+/**
+ * Refresh automatico dati
+ */
+function startAutoRefresh() {
+
+    setInterval(loadWeather, 60000);
+
+}
