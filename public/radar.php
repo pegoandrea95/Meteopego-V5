@@ -63,7 +63,7 @@ $windy = $windyService->getConfig();
 
 <body>
 
-<header class="header">
+<header class="header"> 
 
     <h1>🛰 Radar Meteo</h1>
 
@@ -126,8 +126,8 @@ $windy = $windyService->getConfig();
 
 window.METEOPEGO = {
 
-    windyKey: "<?= htmlspecialchars($windy['apiKey']) ?>",
-
+    windyKey:  "<?= htmlspecialchars($windy['apiKey']) ?>",
+    
     latitude: <?= (float)$windy['latitude'] ?>,
 
     longitude: <?= (float)$windy['longitude'] ?>,

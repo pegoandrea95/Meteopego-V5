@@ -4,7 +4,7 @@ async function aggiornaMeteo() {
 
     try {
 
-        const response = await fetch('/api/weather.php?' + Date.now());
+        const response = await fetch('/api/current.php?' + Date.now());
 
         console.log("2 - Fetch OK");
 

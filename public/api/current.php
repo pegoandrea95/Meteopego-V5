@@ -2,20 +2,52 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../../app/Models/Database.php';
+
 header('Content-Type: application/json');
 
-$file = dirname(__DIR__, 2) . '/data/current.json';
+try {
 
-if (!is_file($file)) {
+    $db = Database::getConnection();
 
-    http_response_code(404);
+    $stmt = $db->query("
+        SELECT
+            temperature,
+            humidity,
+            pressure,
+            wind,
+            rain,
+            uv,
+            created_at
+        FROM weather
+        ORDER BY created_at DESC
+        LIMIT 1
+    ");
+
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$data) {
+        throw new RuntimeException('Nessun dato disponibile.');
+    }
 
     echo json_encode([
-        'error' => 'current.json non trovato'
+
+        'temperature' => (float) $data['temperature'],
+        'humidity'    => (int) $data['humidity'],
+        'pressure'    => (float) $data['pressure'],
+        'wind'        => (float) $data['wind'],
+        'rain'        => (float) $data['rain'],
+        'uv'          => (float) $data['uv'],
+        'timestamp'   => $data['created_at']
+
+    ], JSON_PRETTY_PRINT);
+
+} catch (Throwable $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        'error' => $e->getMessage()
     ]);
 
-    exit;
-
 }
-
-readfile($file);

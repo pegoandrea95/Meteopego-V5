@@ -13,12 +13,9 @@ return [
     'site' => [
 
         'title'       => 'Meteopego Stazione',
-
         'description' => 'Stazione Meteorologica di Marghera (VE)',
-
         'timezone'    => 'Europe/Rome',
-
-        'version'     => '5.2.0'
+        'version'     => '5.2.0',
 
     ],
 
@@ -31,18 +28,12 @@ return [
     'database' => [
 
         'driver'   => 'mysql',
-
         'host'     => 'localhost',
-
         'port'     => 3306,
-
         'database' => 'meteopego',
-
         'username' => 'meteopego',
-
         'password' => 'Tornado25!',
-
-        'charset'  => 'utf8mb4'
+        'charset'  => 'utf8mb4',
 
     ],
 
@@ -55,45 +46,19 @@ return [
     'weather' => [
 
         'station' => 'Ventus W835',
-
         'gateway' => 'Meteobridge',
-
         'location' => 'Marghera (VE)',
 
-        /*
-        |--------------------------------------------------------------------------
-        | Aggiornamento
-        |--------------------------------------------------------------------------
-        */
-
         'refresh' => 30,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Salvataggio intelligente
-        |--------------------------------------------------------------------------
-        */
 
         'save_only_if_changed' => true,
 
         'temperature_delta' => 0.1,
+        'humidity_delta'    => 1,
+        'pressure_delta'    => 0.2,
+        'wind_delta'        => 0.5,
 
-        'humidity_delta' => 1,
-
-        'pressure_delta' => 0.2,
-
-        'wind_delta' => 0.5,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Salvataggio forzato
-        |--------------------------------------------------------------------------
-        | Salva comunque una rilevazione ogni 10 minuti
-        | anche se i valori non cambiano.
-        |--------------------------------------------------------------------------
-        */
-
-        'force_save_every' => 600
+        'force_save_every' => 600,
 
     ],
 
@@ -105,25 +70,10 @@ return [
 
     'meteobridge' => [
 
-        /*
-        |--------------------------------------------------------------------------
-        | Connessione
-        |--------------------------------------------------------------------------
-        */
-
-        'url' => 'http://192.168.1.234',
-
+        'url'      => 'http://192.168.1.234',
         'username' => 'meteobridge',
-
         'password' => '7365sdw25',
-
-        'timeout' => 10,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Template Meteobridge
-        |--------------------------------------------------------------------------
-        */
+        'timeout'  => 10,
 
         'template' => implode('|', [
 
@@ -137,29 +87,26 @@ return [
             '[uv0index-act]',
             '[sol0rad-act]',
             '[th0dew-act]',
-            '[th0heatindex-act]'
+            '[th0heatindex-act]',
 
-        ])
+        ]),
 
     ],
 
     /*
-|--------------------------------------------------------------------------
-| Windy
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Windy
+    |--------------------------------------------------------------------------
+    */
 
-'windy' => [
+    'windy' => [
 
-    'api_key' => '96YydQK0c5cQKLJGte46pZBVdNZLZgpi',
+        'api_key'   => '96YydQK0c5cQKLJGte46pZBVdNZLZgpi',
+        'latitude'  => 45.478,
+        'longitude' => 12.245,
+        'zoom'      => 8,
 
-    'latitude' => 45.478,
-
-    'longitude' => 12.245,
-
-    'zoom' => 8,
-
-],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -170,8 +117,7 @@ return [
     'logs' => [
 
         'enabled' => true,
-
-        'path' => __DIR__ . '/storage/logs/import.log'
+        'path' => __DIR__ . '/storage/logs/import.log',
 
     ],
 
@@ -184,8 +130,7 @@ return [
     'cache' => [
 
         'enabled' => false,
-
-        'ttl' => 30
+        'ttl' => 30,
 
     ],
 
@@ -197,8 +142,20 @@ return [
 
     'api' => [
 
-        'pretty_json' => true
+        'pretty_json' => true,
 
-    ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicazione
+    |--------------------------------------------------------------------------
+    */
+
+    'app' => [
+
+        'base_url' => '/Meteopego-V5/public',
+
+    ],
 
 ];

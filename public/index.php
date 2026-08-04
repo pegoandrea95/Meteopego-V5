@@ -254,7 +254,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 </main>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('assets/js/app.js') ?>"></script>
 
 <?php
 require_once __DIR__ . '/../includes/footer.php';

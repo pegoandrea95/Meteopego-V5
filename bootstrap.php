@@ -16,3 +16,5 @@ $config = require __DIR__ . '/config.php';
 require_once __DIR__ . '/app/Helpers/Url.php';
 
 return $config;
+
+$config['rainviewer'] = require __DIR__ . '/config/rainviewer.php';
