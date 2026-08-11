@@ -8,15 +8,13 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
 
-    $hours = isset($_GET['hours'])
-        ? max(1, (int) $_GET['hours'])
-        : 24;
+    $period = $_GET['period'] ?? '24h';
 
     $weather = new WeatherModel();
 
     echo json_encode(
 
-        $weather->getHistory($hours),
+        $weather->getHistoryByPeriod($period),
 
         JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
 
