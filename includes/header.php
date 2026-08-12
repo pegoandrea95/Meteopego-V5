@@ -78,9 +78,9 @@ require_once __DIR__ . '/../app/Helpers/Url.php';
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link <?= active('grafici.php') ?>"
-                       aria-current="<?= active('grafici.php') ? 'page' : '' ?>"
-                       href="<?= url('grafici.php') ?>">
+                    <a class="nav-link <?= active('graphs.php') ?>"
+                       aria-current="<?= active('graphs.php') ? 'page' : '' ?>"
+                       href="<?= url('graphs.php') ?>">
                         <i class="bi bi-graph-up"></i>
                         Grafici
                     </a>

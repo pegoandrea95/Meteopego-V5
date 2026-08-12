@@ -16,6 +16,8 @@ try {
             humidity,
             pressure,
             wind,
+            gust,
+            winddir,
             rain,
             uv,
             created_at
@@ -36,6 +38,8 @@ try {
         'humidity'    => (int) $data['humidity'],
         'pressure'    => (float) $data['pressure'],
         'wind'        => (float) $data['wind'],
+        'gust'        => (float) $data['gust'],
+        'winddir'     => (float) $data['winddir'],
         'rain'        => (float) $data['rain'],
         'uv'          => (float) $data['uv'],
         'timestamp'   => $data['created_at']
