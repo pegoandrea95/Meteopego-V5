@@ -59,6 +59,7 @@ $windy = $windyService->getConfig();
     <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
+
 </head>
 
 <body>
@@ -79,30 +80,82 @@ $windy = $windyService->getConfig();
 <nav class="toolbar">
 
     <button
-       type="button"
-       id="btnRainViewer">
-       🌧️ Pioggia
+        type="button"
+        id="btnRainViewer">
+        🌧️ Pioggia
     </button>
 
     <button
-       type="button"
-       data-overlay="wind">
-       🌬️ Vento
+        type="button"
+        data-overlay="wind">
+        🌬️ Vento
     </button>
 
     <button
-       type="button"
-       data-overlay="temp">
-       🌡️ Temperatura
+        type="button"
+        data-overlay="temp">
+        🌡️ Temperatura
     </button>
 
     <button
-       type="button"
-       data-overlay="pressure">
-       📊 Pressione
+        type="button"
+        data-overlay="pressure">
+        📊 Pressione
     </button>
 
 </nav>
+
+<section
+    class="radar-timeline"
+    id="radarTimeline">
+
+    <div class="radar-timeline-header">
+
+        <strong>
+            🌧️ Radar precipitazioni
+        </strong>
+
+        <span id="radarTime">
+            --:--
+        </span>
+
+    </div>
+
+    <div class="radar-timeline-controls">
+
+        <button
+            type="button"
+            id="radarPrev">
+            ◀
+        </button>
+
+        <input
+            type="range"
+            id="radarSlider"
+            min="0"
+            max="0"
+            value="0"
+            step="1">
+
+        <button
+            type="button"
+            id="radarNext">
+            ▶
+        </button>
+
+    </div>
+
+    <div class="radar-timeline-footer">
+
+        <button
+            type="button"
+            id="radarPlay">
+            ▶ Play
+        </button>
+
+    </div>
+
+</section>
 
 <main class="page">
 
@@ -130,29 +183,41 @@ $windy = $windyService->getConfig();
 
 window.METEOPEGO = {
 
-    windyKey:  "<?= htmlspecialchars($windy['apiKey']) ?>",
+    windyKey:
+        "<?= htmlspecialchars($windy['apiKey']) ?>",
 
-    latitude: <?= (float)$windy['latitude'] ?>,
+    latitude:
+        <?= (float)$windy['latitude'] ?>,
 
-    longitude: <?= (float)$windy['longitude'] ?>,
+    longitude:
+        <?= (float)$windy['longitude'] ?>,
 
-    zoom: <?= (int)$windy['zoom'] ?>
+    zoom:
+        <?= (int)$windy['zoom'] ?>
 
 };
 
 </script>
 
 <!-- Leaflet -->
-<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+<script
+    src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js">
+</script>
 
 <!-- Windy SDK -->
-<script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+<script
+    src="https://api.windy.com/assets/map-forecast/libBoot.js">
+</script>
 
 <!-- Meteopego API -->
-<script src="<?= asset('assets/js/weather-api.js') ?>"></script>
+<script
+    src="<?= asset('assets/js/weather-api.js') ?>">
+</script>
 
 <!-- Radar -->
-<script src="<?= asset('assets/js/radar.js') ?>"></script>
+<script
+    src="<?= asset('assets/js/radar.js') ?>">
+</script>
 
 <script>
 

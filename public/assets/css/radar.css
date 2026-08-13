@@ -101,3 +101,161 @@ body{
     transform: translateY(-1px);
 
 }
+
+/*
+|--------------------------------------------------------------------------
+| Timeline RainViewer
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline {
+
+    max-width: 1100px;
+
+    margin: 0 auto 20px;
+
+    padding: 15px 20px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,.10);
+
+}
+
+.radar-timeline-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+
+    color: #333;
+
+}
+
+.radar-timeline-header strong {
+
+    color: #2563eb;
+
+    font-size: 16px;
+
+}
+
+#radarTime {
+
+    font-weight: bold;
+
+    color: #555;
+
+}
+
+.radar-timeline-controls {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+.radar-timeline-controls button {
+
+    width: 42px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+}
+
+.radar-timeline-controls button:hover {
+
+    background: #1d4ed8;
+
+}
+
+#radarSlider {
+
+    flex: 1;
+
+    cursor: pointer;
+
+}
+
+.radar-timeline-footer {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 12px;
+
+}
+
+#radarPlay {
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 9px 22px;
+
+    background: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+}
+
+#radarPlay:hover {
+
+    background: #1d4ed8;
+
+}
+
+@media (max-width: 600px) {
+
+    .radar-timeline {
+
+        margin-left: 10px;
+
+        margin-right: 10px;
+
+        padding: 12px;
+
+    }
+
+    .radar-timeline-header {
+
+        font-size: 14px;
+
+    }
+
+    .radar-timeline-controls button {
+
+        width: 38px;
+
+        height: 36px;
+
+    }
+
+}

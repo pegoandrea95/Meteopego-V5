@@ -5,6 +5,12 @@ let map = null;
 let marker = null;
 let rainViewerLayer = null;
 
+let rainViewerFrames = [];
+let rainViewerFrameIndex = 0;
+let rainViewerPlaying = false;
+let rainViewerPlayTimer = null;
+let rainViewerTimelineInitialized = false;
+
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -105,15 +111,20 @@ function updatePopup(weather) {
  */
 function initToolbar() {
 
-    const available = windyAPI.store.getAllowed("overlay");
+    const available =
+        windyAPI.store.getAllowed("overlay");
 
-    console.log("Overlay disponibili:", available);
+    console.log(
+        "Overlay disponibili:",
+        available
+    );
 
     document
         .querySelectorAll("[data-overlay]")
         .forEach(button => {
 
-            const overlay = button.dataset.overlay;
+            const overlay =
+                button.dataset.overlay;
 
             /*
              * Nasconde i pulsanti non disponibili
@@ -122,19 +133,24 @@ function initToolbar() {
             if (!available.includes(overlay)) {
 
                 button.style.display = "none";
+
                 return;
 
             }
 
-            button.addEventListener("click", () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                changeOverlay(overlay);
+                    changeOverlay(overlay);
 
-            });
+                }
+            );
 
         });
 
-    const current = windyAPI.store.get("overlay");
+    const current =
+        windyAPI.store.get("overlay");
 
     setActiveButton(current);
 
@@ -147,19 +163,31 @@ function initToolbar() {
  */
 function changeOverlay(name) {
 
-    if (!windyAPI.store.getAllowed("overlay").includes(name)) {
+    if (
+        !windyAPI.store
+            .getAllowed("overlay")
+            .includes(name)
+    ) {
 
-        console.warn(`Overlay "${name}" non disponibile`);
+        console.warn(
+            `Overlay "${name}" non disponibile`
+        );
 
         return;
 
     }
 
-    windyAPI.store.set("overlay", name);
+    windyAPI.store.set(
+        "overlay",
+        name
+    );
 
     setActiveButton(name);
 
-    console.log("Overlay:", name);
+    console.log(
+        "Overlay:",
+        name
+    );
 
 }
 
@@ -174,7 +202,10 @@ function setActiveButton(active) {
 
             button.classList.remove("active");
 
-            if (button.dataset.overlay === active) {
+            if (
+                button.dataset.overlay ===
+                active
+            ) {
 
                 button.classList.add("active");
 
@@ -190,49 +221,74 @@ function setActiveButton(active) {
 function initRainViewerButton() {
 
     const button =
-        document.getElementById("btnRainViewer");
+        document.getElementById(
+            "btnRainViewer"
+        );
 
     if (!button) {
+
         return;
+
     }
 
     button.classList.add("active");
 
-    button.addEventListener("click", () => {
+    button.addEventListener(
+        "click",
+        () => {
 
-        if (!rainViewerLayer) {
+            if (!rainViewerLayer) {
 
-            console.warn(
-                "RainViewer non ancora disponibile"
-            );
+                console.warn(
+                    "RainViewer non ancora disponibile"
+                );
 
-            return;
+                return;
+
+            }
+
+            if (
+                map.hasLayer(
+                    rainViewerLayer
+                )
+            ) {
+
+                /*
+                 * Quando RainViewer viene
+                 * disattivato, fermiamo anche
+                 * l'eventuale animazione.
+                 */
+
+                stopRainViewerAnimation();
+
+                map.removeLayer(
+                    rainViewerLayer
+                );
+
+                button.classList.remove(
+                    "active"
+                );
+
+                console.log(
+                    "🌧 RainViewer disattivato"
+                );
+
+            } else {
+
+                rainViewerLayer.addTo(map);
+
+                button.classList.add(
+                    "active"
+                );
+
+                console.log(
+                    "🌧 RainViewer attivato"
+                );
+
+            }
 
         }
-
-        if (map.hasLayer(rainViewerLayer)) {
-
-            map.removeLayer(rainViewerLayer);
-
-            button.classList.remove("active");
-
-            console.log(
-                "🌧 RainViewer disattivato"
-            );
-
-        } else {
-
-            rainViewerLayer.addTo(map);
-
-            button.classList.add("active");
-
-            console.log(
-                "🌧 RainViewer attivato"
-            );
-
-        }
-
-    });
+    );
 
 }
 
@@ -248,7 +304,8 @@ async function initRainViewer() {
         );
 
         const response = await fetch(
-            "/api/rainviewer.php?" + Date.now()
+            "/api/rainviewer.php?" +
+            Date.now()
         );
 
         if (!response.ok) {
@@ -259,7 +316,8 @@ async function initRainViewer() {
 
         }
 
-        const result = await response.json();
+        const result =
+            await response.json();
 
         if (result.status !== "ok") {
 
@@ -270,13 +328,16 @@ async function initRainViewer() {
 
         }
 
-        const data = result.data;
+        const data =
+            result.data;
 
         if (
             !data ||
             !data.host ||
             !data.radar ||
-            !Array.isArray(data.radar.past) ||
+            !Array.isArray(
+                data.radar.past
+            ) ||
             data.radar.past.length === 0
         ) {
 
@@ -286,19 +347,22 @@ async function initRainViewer() {
 
         }
 
-        const lastFrame =
-            data.radar.past[
-                data.radar.past.length - 1
-            ];
+        rainViewerFrames =
+            data.radar.past;
+
+        rainViewerFrameIndex =
+            rainViewerFrames.length - 1;
 
         console.log(
-            "🌧 Ultimo frame RainViewer:",
-            lastFrame
+            "🌧 Frame RainViewer disponibili:",
+            rainViewerFrames.length
         );
 
-        createRainViewerLayer(
+        initRainViewerTimeline();
+
+        selectRainViewerFrame(
             data.host,
-            lastFrame.path
+            rainViewerFrameIndex
         );
 
     } catch (error) {
@@ -313,9 +377,393 @@ async function initRainViewer() {
 }
 
 /**
+ * Inizializza i controlli della timeline
+ */
+function initRainViewerTimeline() {
+
+    if (
+        rainViewerTimelineInitialized
+    ) {
+
+        return;
+
+    }
+
+    const slider =
+        document.getElementById(
+            "radarSlider"
+        );
+
+    const prev =
+        document.getElementById(
+            "radarPrev"
+        );
+
+    const next =
+        document.getElementById(
+            "radarNext"
+        );
+
+    const play =
+        document.getElementById(
+            "radarPlay"
+        );
+
+    if (
+        !slider ||
+        !prev ||
+        !next ||
+        !play
+    ) {
+
+        console.warn(
+            "⚠️ Controlli timeline RainViewer non trovati"
+        );
+
+        return;
+
+    }
+
+    rainViewerTimelineInitialized =
+        true;
+
+    slider.addEventListener(
+        "input",
+        () => {
+
+            const index =
+                Number(
+                    slider.value
+                );
+
+            stopRainViewerAnimation();
+
+            selectRainViewerFrame(
+                null,
+                index
+            );
+
+        }
+    );
+
+    prev.addEventListener(
+        "click",
+        () => {
+
+            stopRainViewerAnimation();
+
+            const index =
+                rainViewerFrameIndex > 0
+                    ? rainViewerFrameIndex - 1
+                    : rainViewerFrames.length - 1;
+
+            selectRainViewerFrame(
+                null,
+                index
+            );
+
+        }
+    );
+
+    next.addEventListener(
+        "click",
+        () => {
+
+            stopRainViewerAnimation();
+
+            const index =
+                rainViewerFrameIndex <
+                rainViewerFrames.length - 1
+                    ? rainViewerFrameIndex + 1
+                    : 0;
+
+            selectRainViewerFrame(
+                null,
+                index
+            );
+
+        }
+    );
+
+    play.addEventListener(
+        "click",
+        () => {
+
+            if (rainViewerPlaying) {
+
+                stopRainViewerAnimation();
+
+            } else {
+
+                startRainViewerAnimation();
+
+            }
+
+        }
+    );
+
+}
+
+/**
+ * Seleziona un frame RainViewer
+ */
+function selectRainViewerFrame(
+    host,
+    index
+) {
+
+    if (
+        !Array.isArray(
+            rainViewerFrames
+        ) ||
+        rainViewerFrames.length === 0
+    ) {
+
+        return;
+
+    }
+
+    if (
+        index < 0 ||
+        index >= rainViewerFrames.length
+    ) {
+
+        return;
+
+    }
+
+    rainViewerFrameIndex =
+        index;
+
+    const frame =
+        rainViewerFrames[index];
+
+    if (
+        !frame ||
+        !frame.path
+    ) {
+
+        return;
+
+    }
+
+    const currentHost =
+        host ||
+        window.rainViewerHost;
+
+    if (!currentHost) {
+
+        console.warn(
+            "⚠️ Host RainViewer non disponibile"
+        );
+
+        return;
+
+    }
+
+    window.rainViewerHost =
+        currentHost;
+
+    createRainViewerLayer(
+        currentHost,
+        frame.path
+    );
+
+    updateRainViewerTimeline(
+        frame
+    );
+
+}
+
+/**
+ * Aggiorna slider e orario
+ */
+function updateRainViewerTimeline(
+    frame
+) {
+
+    const slider =
+        document.getElementById(
+            "radarSlider"
+        );
+
+    const time =
+        document.getElementById(
+            "radarTime"
+        );
+
+    if (slider) {
+
+        slider.min = 0;
+
+        slider.max =
+            Math.max(
+                rainViewerFrames.length - 1,
+                0
+            );
+
+        slider.value =
+            rainViewerFrameIndex;
+
+    }
+
+    if (
+        time &&
+        frame &&
+        frame.time
+    ) {
+
+        const date =
+            new Date(
+                frame.time * 1000
+            );
+
+        time.textContent =
+            date.toLocaleTimeString(
+                "it-IT",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+    }
+
+}
+
+/**
+ * Avvia animazione RainViewer
+ */
+function startRainViewerAnimation() {
+
+    if (
+        !rainViewerFrames ||
+        rainViewerFrames.length < 2
+    ) {
+
+        return;
+
+    }
+
+    if (rainViewerPlaying) {
+
+        return;
+
+    }
+
+    /*
+     * Se il layer è stato disattivato,
+     * lo riattiviamo prima di avviare
+     * l'animazione.
+     */
+
+    if (
+        rainViewerLayer &&
+        !map.hasLayer(rainViewerLayer)
+    ) {
+
+        rainViewerLayer.addTo(map);
+
+        const button =
+            document.getElementById(
+                "btnRainViewer"
+            );
+
+        if (button) {
+
+            button.classList.add(
+                "active"
+            );
+
+        }
+
+    }
+
+    rainViewerPlaying =
+        true;
+
+    updateRainViewerPlayButton();
+
+    rainViewerPlayTimer =
+        setInterval(
+            () => {
+
+                let nextIndex =
+                    rainViewerFrameIndex + 1;
+
+                if (
+                    nextIndex >=
+                    rainViewerFrames.length
+                ) {
+
+                    nextIndex = 0;
+
+                }
+
+                selectRainViewerFrame(
+                    null,
+                    nextIndex
+                );
+
+            },
+            700
+        );
+
+}
+
+/**
+ * Ferma animazione RainViewer
+ */
+function stopRainViewerAnimation() {
+
+    rainViewerPlaying =
+        false;
+
+    if (rainViewerPlayTimer) {
+
+        clearInterval(
+            rainViewerPlayTimer
+        );
+
+        rainViewerPlayTimer =
+            null;
+
+    }
+
+    updateRainViewerPlayButton();
+
+}
+
+/**
+ * Aggiorna pulsante Play/Pausa
+ */
+function updateRainViewerPlayButton() {
+
+    const play =
+        document.getElementById(
+            "radarPlay"
+        );
+
+    if (!play) {
+
+        return;
+
+    }
+
+    play.textContent =
+        rainViewerPlaying
+            ? "⏸ Pausa"
+            : "▶ Play";
+
+}
+
+/**
  * Crea layer RainViewer
  */
-function createRainViewerLayer(host, path) {
+function createRainViewerLayer(
+    host,
+    path
+) {
 
     const tileUrl =
         `${host}${path}/256/{z}/{x}/{y}/2/1_1.png`;
@@ -325,36 +773,89 @@ function createRainViewerLayer(host, path) {
         tileUrl
     );
 
+    const layerWasVisible =
+        rainViewerLayer &&
+        map.hasLayer(
+            rainViewerLayer
+        );
+
     if (rainViewerLayer) {
 
-        map.removeLayer(rainViewerLayer);
+        map.removeLayer(
+            rainViewerLayer
+        );
 
     }
 
-    rainViewerLayer = L.tileLayer(
-        tileUrl,
-        {
+    rainViewerLayer =
+        L.tileLayer(
+            tileUrl,
+            {
 
-            opacity: 0.65,
+                opacity: 0.65,
 
-            maxZoom: 7,
+                maxZoom: 7,
 
-            attribution:
-                'Weather data by <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
+                attribution:
+                    'Weather data by <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
 
-        }
-    );
+            }
+        );
 
-    rainViewerLayer.addTo(map);
+    if (
+        !rainViewerLayer ||
+        !map
+    ) {
 
-    window.rainViewerLayer = rainViewerLayer;
+        return;
+
+    }
+
+    /*
+     * Il primo frame viene mostrato
+     * automaticamente.
+     *
+     * Nei cambi frame successivi
+     * manteniamo lo stato ON/OFF
+     * del pulsante Pioggia.
+     */
+
+    if (
+        layerWasVisible ||
+        !window.rainViewerInitialized
+    ) {
+
+        rainViewerLayer.addTo(map);
+
+        window.rainViewerInitialized =
+            true;
+
+    }
+
+    window.rainViewerLayer =
+        rainViewerLayer;
 
     const button =
-        document.getElementById("btnRainViewer");
+        document.getElementById(
+            "btnRainViewer"
+        );
 
-    if (button) {
+    if (
+        button &&
+        map.hasLayer(
+            rainViewerLayer
+        )
+    ) {
 
-        button.classList.add("active");
+        button.classList.add(
+            "active"
+        );
+
+    } else if (button) {
+
+        button.classList.remove(
+            "active"
+        );
 
     }
 
