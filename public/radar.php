@@ -63,7 +63,7 @@ $windy = $windyService->getConfig();
 
 <body>
 
-<header class="header"> 
+<header class="header">
 
     <h1>🛰 Radar Meteo</h1>
 
@@ -78,24 +78,22 @@ $windy = $windyService->getConfig();
 
 <nav class="toolbar">
 
-    <button id="btnRadar">
-        🌧 Pioggia
+    <button
+       type="button"
+       data-overlay="wind">
+       🌬️ Vento
     </button>
 
-    <button id="btnSatellite">
-        🛰 Satellite
+    <button
+       type="button"
+       data-overlay="temp">
+       🌡️ Temperatura
     </button>
 
-    <button id="btnWind">
-        🌬 Vento
-    </button>
-
-    <button id="btnTemperature">
-        🌡 Temperatura
-    </button>
-
-    <button id="btnClouds">
-        ☁ Nuvole
+    <button
+       type="button"
+       data-overlay="pressure">
+       📊 Pressione
     </button>
 
 </nav>
@@ -127,7 +125,7 @@ $windy = $windyService->getConfig();
 window.METEOPEGO = {
 
     windyKey:  "<?= htmlspecialchars($windy['apiKey']) ?>",
-    
+
     latitude: <?= (float)$windy['latitude'] ?>,
 
     longitude: <?= (float)$windy['longitude'] ?>,

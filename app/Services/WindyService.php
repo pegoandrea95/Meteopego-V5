@@ -12,7 +12,7 @@ final class WindyService
     public function getConfig(): array
     {
         return [
-            'api_Key'    => $this->config['windy']['api_key'],
+            'apiKey'    => $this->config['windy']['api_key'],
             'latitude'  => (float) $this->config['windy']['latitude'],
             'longitude' => (float) $this->config['windy']['longitude'],
             'zoom'      => (int) $this->config['windy']['zoom'],
