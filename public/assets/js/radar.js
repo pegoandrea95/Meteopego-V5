@@ -3,6 +3,7 @@
 let windyAPI = null;
 let map = null;
 let marker = null;
+let rainViewerLayer = null;
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -39,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
         createMarker();
 
         initToolbar();
+
+        initRainViewer();
 
         loadWeather();
 
@@ -135,6 +138,8 @@ function initToolbar() {
 
     setActiveButton(current);
 
+    initRainViewerButton();
+
 }
 
 /**
@@ -180,10 +185,198 @@ function setActiveButton(active) {
 }
 
 /**
+ * Pulsante RainViewer
+ */
+function initRainViewerButton() {
+
+    const button =
+        document.getElementById("btnRainViewer");
+
+    if (!button) {
+        return;
+    }
+
+    button.classList.add("active");
+
+    button.addEventListener("click", () => {
+
+        if (!rainViewerLayer) {
+
+            console.warn(
+                "RainViewer non ancora disponibile"
+            );
+
+            return;
+
+        }
+
+        if (map.hasLayer(rainViewerLayer)) {
+
+            map.removeLayer(rainViewerLayer);
+
+            button.classList.remove("active");
+
+            console.log(
+                "🌧 RainViewer disattivato"
+            );
+
+        } else {
+
+            rainViewerLayer.addTo(map);
+
+            button.classList.add("active");
+
+            console.log(
+                "🌧 RainViewer attivato"
+            );
+
+        }
+
+    });
+
+}
+
+/**
+ * Inizializza RainViewer
+ */
+async function initRainViewer() {
+
+    try {
+
+        console.log(
+            "🌧 Caricamento RainViewer..."
+        );
+
+        const response = await fetch(
+            "/api/rainviewer.php?" + Date.now()
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `RainViewer HTTP ${response.status}`
+            );
+
+        }
+
+        const result = await response.json();
+
+        if (result.status !== "ok") {
+
+            throw new Error(
+                result.error ||
+                "Risposta RainViewer non valida"
+            );
+
+        }
+
+        const data = result.data;
+
+        if (
+            !data ||
+            !data.host ||
+            !data.radar ||
+            !Array.isArray(data.radar.past) ||
+            data.radar.past.length === 0
+        ) {
+
+            throw new Error(
+                "Nessun frame radar RainViewer disponibile"
+            );
+
+        }
+
+        const lastFrame =
+            data.radar.past[
+                data.radar.past.length - 1
+            ];
+
+        console.log(
+            "🌧 Ultimo frame RainViewer:",
+            lastFrame
+        );
+
+        createRainViewerLayer(
+            data.host,
+            lastFrame.path
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ Errore RainViewer:",
+            error
+        );
+
+    }
+
+}
+
+/**
+ * Crea layer RainViewer
+ */
+function createRainViewerLayer(host, path) {
+
+    const tileUrl =
+        `${host}${path}/256/{z}/{x}/{y}/2/1_1.png`;
+
+    console.log(
+        "🌧 RainViewer tile URL:",
+        tileUrl
+    );
+
+    if (rainViewerLayer) {
+
+        map.removeLayer(rainViewerLayer);
+
+    }
+
+    rainViewerLayer = L.tileLayer(
+        tileUrl,
+        {
+
+            opacity: 0.65,
+
+            maxZoom: 7,
+
+            attribution:
+                'Weather data by <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
+
+        }
+    );
+
+    rainViewerLayer.addTo(map);
+
+    window.rainViewerLayer = rainViewerLayer;
+
+    const button =
+        document.getElementById("btnRainViewer");
+
+    if (button) {
+
+        button.classList.add("active");
+
+    }
+
+    console.log(
+        "✅ Layer RainViewer aggiunto"
+    );
+
+}
+
+/**
  * Refresh automatico dati
  */
 function startAutoRefresh() {
 
-    setInterval(loadWeather, 60000);
+    setInterval(
+        loadWeather,
+        60000
+    );
+
+    setInterval(
+        initRainViewer,
+        300000
+    );
 
 }

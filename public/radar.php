@@ -80,6 +80,12 @@ $windy = $windyService->getConfig();
 
     <button
        type="button"
+       id="btnRainViewer">
+       🌧️ Pioggia
+    </button>
+
+    <button
+       type="button"
        data-overlay="wind">
        🌬️ Vento
     </button>

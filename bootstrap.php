@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 $config = require __DIR__ . '/config.php';
 
+$config['rainviewer'] = require __DIR__ . '/config/rainviewer.php';
+
 require_once __DIR__ . '/app/Helpers/Url.php';
 
 return $config;
-
-$config['rainviewer'] = require __DIR__ . '/config/rainviewer.php';
