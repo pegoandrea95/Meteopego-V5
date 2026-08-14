@@ -576,7 +576,8 @@ function selectRainViewerFrame(
 }
 
 /**
- * Aggiorna slider e orario
+ * Aggiorna slider, orario e informazioni
+ * della timeline RainViewer
  */
 function updateRainViewerTimeline(
     frame
@@ -592,6 +593,20 @@ function updateRainViewerTimeline(
             "radarTime"
         );
 
+    const frameInfo =
+        document.getElementById(
+            "radarFrameInfo"
+        );
+
+    const relativeTime =
+        document.getElementById(
+            "radarRelativeTime"
+        );
+
+    /*
+     * Aggiorna slider
+     */
+
     if (slider) {
 
         slider.min = 0;
@@ -606,6 +621,24 @@ function updateRainViewerTimeline(
             rainViewerFrameIndex;
 
     }
+
+    /*
+     * Numero di frame disponibili
+     */
+
+    if (frameInfo) {
+
+        const totalFrames =
+            rainViewerFrames.length;
+
+        frameInfo.textContent =
+            `${totalFrames} frame`;
+
+    }
+
+    /*
+     * Aggiorna ora del frame
+     */
 
     if (
         time &&
@@ -626,6 +659,55 @@ function updateRainViewerTimeline(
                     minute: "2-digit"
                 }
             );
+
+    }
+
+    /*
+     * Calcola la distanza temporale
+     * del frame rispetto all'ultimo
+     * frame disponibile.
+     */
+
+    if (
+        relativeTime &&
+        frame &&
+        frame.time &&
+        rainViewerFrames.length > 0
+    ) {
+
+        const lastFrame =
+            rainViewerFrames[
+                rainViewerFrames.length - 1
+            ];
+
+        if (
+            lastFrame &&
+            lastFrame.time
+        ) {
+
+            const differenceMinutes =
+                Math.round(
+                    (
+                        lastFrame.time -
+                        frame.time
+                    ) / 60
+                );
+
+            if (
+                differenceMinutes <= 0
+            ) {
+
+                relativeTime.textContent =
+                    "ORA";
+
+            } else {
+
+                relativeTime.textContent =
+                    `−${differenceMinutes} min`;
+
+            }
+
+        }
 
     }
 

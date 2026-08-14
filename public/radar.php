@@ -2,22 +2,15 @@
 
 declare(strict_types=1);
 
-/*
-|--------------------------------------------------------------------------
-| Meteopego V5
-| Radar Windy
-|--------------------------------------------------------------------------
-*/
-
 $config = require dirname(__DIR__) . '/bootstrap.php';
 
 require_once __DIR__ . '/../app/Services/WindyService.php';
 
 $windyService = new WindyService($config);
+
 $windy = $windyService->getConfig();
 
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
 
@@ -27,38 +20,19 @@ $windy = $windyService->getConfig();
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1">
+        content="width=device-width, initial-scale=1.0">
 
     <title>
-        Radar Meteo |
-        <?= htmlspecialchars($config['site']['title']) ?>
+        Radar Meteo - Meteopego
     </title>
 
-    <meta
-        name="description"
-        content="Radar meteo in tempo reale della stazione Meteopego">
-
-    <meta
-        name="theme-color"
-        content="#2563eb">
-
-    <link
-        rel="icon"
-        href="<?= asset('assets/images/favicon.ico') ?>">
-
-    <!-- CSS -->
     <link
         rel="stylesheet"
-        href="<?= asset('assets/css/style.css') ?>">
+        href="/assets/css/radar.css">
 
     <link
         rel="stylesheet"
-        href="<?= asset('assets/css/radar.css') ?>">
-
-    <!-- Leaflet -->
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 </head>
 
@@ -66,12 +40,16 @@ $windy = $windyService->getConfig();
 
 <header class="header">
 
-    <h1>🛰 Radar Meteo</h1>
+    <h1>
+        🛰 Radar Meteo
+    </h1>
 
     <p>
 
         Radar Windy in tempo reale -
-        <?= htmlspecialchars($config['weather']['location']) ?>
+        <?= htmlspecialchars(
+            $config['weather']['location']
+        ) ?>
 
     </p>
 
@@ -121,11 +99,24 @@ $windy = $windyService->getConfig();
 
     </div>
 
+    <div class="radar-timeline-info">
+
+        <span id="radarFrameInfo">
+            0 frame
+        </span>
+
+        <span id="radarRelativeTime">
+            --
+        </span>
+
+    </div>
+
     <div class="radar-timeline-controls">
 
         <button
             type="button"
-            id="radarPrev">
+            id="radarPrev"
+            aria-label="Frame precedente">
             ◀
         </button>
 
@@ -135,13 +126,35 @@ $windy = $windyService->getConfig();
             min="0"
             max="0"
             value="0"
-            step="1">
+            step="1"
+            aria-label="Timeline radar precipitazioni">
 
         <button
             type="button"
-            id="radarNext">
+            id="radarNext"
+            aria-label="Frame successivo">
             ▶
         </button>
+
+    </div>
+
+    <div class="radar-timeline-labels">
+
+        <span>
+            -60 min
+        </span>
+
+        <span>
+            -30 min
+        </span>
+
+        <span>
+            -10 min
+        </span>
+
+        <span>
+            ORA
+        </span>
 
     </div>
 
@@ -181,52 +194,54 @@ $windy = $windyService->getConfig();
 
 <script>
 
-window.METEOPEGO = {
+    window.METEOPEGO = {
 
-    windyKey:
-        "<?= htmlspecialchars($windy['apiKey']) ?>",
+        windyKey:
+            <?= json_encode(
+                $windy['apiKey'],
+                JSON_UNESCAPED_SLASHES
+            ) ?>,
 
-    latitude:
-        <?= (float)$windy['latitude'] ?>,
+        latitude:
+            <?= json_encode(
+                $windy['latitude']
+            ) ?>,
 
-    longitude:
-        <?= (float)$windy['longitude'] ?>,
+        longitude:
+            <?= json_encode(
+                $windy['longitude']
+            ) ?>,
 
-    zoom:
-        <?= (int)$windy['zoom'] ?>
+        zoom:
+            <?= json_encode(
+                $windy['zoom']
+            ) ?>,
 
-};
+        stationName:
+            <?= json_encode(
+                $config['weather']['station_name'] ?? 'Meteopego',
+                JSON_UNESCAPED_UNICODE |
+                JSON_UNESCAPED_SLASHES
+            ) ?>
+
+    };
 
 </script>
 
-<!-- Leaflet -->
 <script
     src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js">
 </script>
 
-<!-- Windy SDK -->
 <script
     src="https://api.windy.com/assets/map-forecast/libBoot.js">
 </script>
 
-<!-- Meteopego API -->
 <script
-    src="<?= asset('assets/js/weather-api.js') ?>">
+    src="/assets/js/weather-api.js">
 </script>
 
-<!-- Radar -->
 <script
-    src="<?= asset('assets/js/radar.js') ?>">
-</script>
-
-<script>
-
-setTimeout(() => {
-
-    location.reload();
-
-}, 300000);
-
+    src="/assets/js/radar.js">
 </script>
 
 </body>
