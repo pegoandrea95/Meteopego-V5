@@ -1,10 +1,13 @@
 <?php
+
 require_once __DIR__ . '/../includes/header.php';
+
 ?>
 
 <main class="container py-4">
 
     <!-- Hero -->
+
     <section class="text-center mb-5">
 
         <h1 class="display-4 fw-bold">
@@ -38,9 +41,11 @@ require_once __DIR__ . '/../includes/header.php';
 
     </section>
 
+
     <!-- Dashboard -->
 
     <section class="row g-4">
+
 
         <!-- Temperatura -->
 
@@ -54,13 +59,16 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <h5 class="mt-3">Temperatura</h5>
 
-                    <h2 id="temp" class="display-5 fw-bold">--.- °C</h2>
+                    <h2 id="temp" class="display-5 fw-bold">
+                        --.- °C
+                    </h2>
 
                 </div>
 
             </div>
 
         </div>
+
 
         <!-- Umidità -->
 
@@ -74,13 +82,16 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <h5 class="mt-3">Umidità</h5>
 
-                    <h2 id="hum" class="display-5 fw-bold">-- %</h2>
+                    <h2 id="hum" class="display-5 fw-bold">
+                        -- %
+                    </h2>
 
                 </div>
 
             </div>
 
         </div>
+
 
         <!-- Pressione -->
 
@@ -94,13 +105,16 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <h5 class="mt-3">Pressione</h5>
 
-                    <h2 id="pressure" class="display-5 fw-bold">---- hPa</h2>
+                    <h2 id="pressure" class="display-5 fw-bold">
+                        ---- hPa
+                    </h2>
 
                 </div>
 
             </div>
 
         </div>
+
 
         <!-- Vento -->
 
@@ -114,13 +128,75 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <h5 class="mt-3">Vento</h5>
 
-                    <h2 id="wind" class="display-5 fw-bold">-- km/h</h2>
+                    <h2 id="wind" class="display-5 fw-bold">
+                        -- km/h
+                    </h2>
+
+
+                    <!-- Bussola del vento -->
+
+                    <div class="wind-direction-wrapper">
+
+                        <div class="wind-compass">
+
+                            <span class="wind-direction-label north">
+                                N
+                            </span>
+
+                            <span class="wind-direction-label east">
+                                E
+                            </span>
+
+                            <span class="wind-direction-label south">
+                                S
+                            </span>
+
+                            <span class="wind-direction-label west">
+                                O
+                            </span>
+
+
+                            <div
+                                id="wind-arrow"
+                                class="wind-arrow"
+                                aria-label="Direzione del vento"
+                            >
+                                ↑
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Direzione -->
+
+                    <div
+                        id="wind-direction"
+                        class="fw-bold mt-2"
+                    >
+                        -- · --°
+                    </div>
+
+
+                    <!-- Raffica -->
+
+                    <div class="text-secondary mt-2">
+
+                        Raffica:
+
+                        <strong id="wind-gust">
+                            -- km/h
+                        </strong>
+
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
+
 
         <!-- Pioggia -->
 
@@ -134,13 +210,16 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <h5 class="mt-3">Pioggia</h5>
 
-                    <h2 id="rain" class="display-5 fw-bold">-- mm</h2>
+                    <h2 id="rain" class="display-5 fw-bold">
+                        -- mm
+                    </h2>
 
                 </div>
 
             </div>
 
         </div>
+
 
         <!-- UV -->
 
@@ -154,7 +233,9 @@ require_once __DIR__ . '/../includes/header.php';
 
                     <h5 class="mt-3">Indice UV</h5>
 
-                    <h2 id="uv" class="display-5 fw-bold">--</h2>
+                    <h2 id="uv" class="display-5 fw-bold">
+                        --
+                    </h2>
 
                 </div>
 
@@ -163,6 +244,7 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
     </section>
+
 
     <!-- Informazioni stazione -->
 
@@ -214,6 +296,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     </section>
 
+
     <!-- Grafici -->
 
     <section class="mt-5">
@@ -233,9 +316,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <i class="bi bi-bar-chart display-3 text-secondary"></i>
 
                 <h4 class="mt-3">
-
                     Grafici in sviluppo
-
                 </h4>
 
                 <p class="text-muted">
@@ -252,10 +333,15 @@ require_once __DIR__ . '/../includes/header.php';
 
     </section>
 
+
 </main>
 
-<script src="/assets/js/app.js"></script>
+
+<script src="<?= asset('assets/js/app.js') ?>"></script>
+
 
 <?php
+
 require_once __DIR__ . '/../includes/footer.php';
+
 ?>

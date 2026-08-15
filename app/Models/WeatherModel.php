@@ -48,7 +48,42 @@ class WeatherModel
 
         return $stmt->fetchAll();
     }
+/**
+ * Restituisce lo storico per periodo
+ */
+public function getHistoryByPeriod(string $period = '24h'): array
+{
+    $interval = match ($period) {
+        '24h'  => '24 HOUR',
+        '7d'   => '7 DAY',
+        '30d'  => '30 DAY',
+        '365d' => '365 DAY',
+        default => '24 HOUR',
+    };
 
+    $stmt = $this->db->prepare("
+        SELECT
+            created_at,
+            temperature,
+            humidity,
+            pressure,
+            wind,
+            gust,
+            winddir,
+            rain,
+            uv,
+            solar,
+            dew,
+            feels
+        FROM weather
+        WHERE created_at >= NOW() - INTERVAL $interval
+        ORDER BY created_at ASC
+    ");
+
+    $stmt->execute();
+
+    return $stmt->fetchAll();
+}
     /**
      * Inserisce una nuova rilevazione
      */

@@ -85,6 +85,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<?php if (isset($pageScripts)): ?>
+    <?php foreach ($pageScripts as $script): ?>
+        <script src="<?= asset($script) ?>"></script>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 </body>
 
 </html>

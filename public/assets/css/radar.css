@@ -1,0 +1,645 @@
+body {
+
+    margin: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #eef5ff;
+
+}
+
+.page {
+
+    max-width: 1600px;
+
+    margin: auto;
+
+}
+
+.header {
+
+    text-align: center;
+
+    padding: 25px 20px;
+
+}
+
+.header h1 {
+
+    color: #2563eb;
+
+    margin: 0;
+
+    font-size: 42px;
+
+}
+
+.header p {
+
+    color: #555;
+
+    margin-top: 10px;
+
+}
+
+.toolbar {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    padding-bottom: 20px;
+
+    flex-wrap: wrap;
+
+}
+
+.toolbar button {
+
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 22px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    transition:
+        background .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+
+}
+
+.toolbar button:hover {
+
+    background: #1d4ed8;
+
+}
+
+.toolbar button.active {
+
+    background: #1d4ed8;
+
+    box-shadow: 0 0 12px rgba(37, 99, 235, .4);
+
+    transform: translateY(-1px);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Modalità Radar precipitazioni
+|--------------------------------------------------------------------------
+*/
+
+.radar-mode {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease;
+
+}
+
+.radar-mode[hidden] {
+
+    display: none;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Timeline RainViewer
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline {
+
+    max-width: 1100px;
+
+    margin: 0 auto 12px;
+
+    padding: 15px 20px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
+
+}
+
+.radar-timeline-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 8px;
+
+    color: #333;
+
+}
+
+.radar-timeline-header strong {
+
+    color: #2563eb;
+
+    font-size: 16px;
+
+}
+
+#radarTime {
+
+    font-weight: bold;
+
+    color: #555;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Informazioni timeline
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline-info {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+
+    color: #6b7280;
+
+}
+
+#radarFrameInfo {
+
+    font-weight: 600;
+
+    color: #555;
+
+}
+
+#radarRelativeTime {
+
+    font-weight: 700;
+
+    color: #2563eb;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Controlli timeline
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline-controls {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+.radar-timeline-controls button {
+
+    width: 42px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    flex-shrink: 0;
+
+}
+
+.radar-timeline-controls button:hover {
+
+    background: #1d4ed8;
+
+}
+
+#radarSlider {
+
+    flex: 1;
+
+    cursor: pointer;
+
+    accent-color: #2563eb;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Etichette temporali
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline-labels {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin: 5px 52px 0;
+
+    color: #888;
+
+    font-size: 11px;
+
+    user-select: none;
+
+}
+
+.radar-timeline-labels span:last-child {
+
+    color: #2563eb;
+
+    font-weight: 700;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Pulsante Play
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline-footer {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 12px;
+
+}
+
+#radarPlay {
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 9px 22px;
+
+    background: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
+
+}
+
+#radarPlay:hover {
+
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Legenda precipitazioni
+|--------------------------------------------------------------------------
+*/
+
+.radar-legend {
+
+    max-width: 1100px;
+
+    margin: 0 auto 20px;
+
+    padding: 12px 20px;
+
+    background: rgba(255, 255, 255, .96);
+
+    border-radius: 12px;
+
+    box-shadow: 0 5px 16px rgba(0, 0, 0, .08);
+
+}
+
+.radar-legend[hidden] {
+
+    display: none;
+
+}
+
+.radar-legend-title {
+
+    text-align: center;
+
+    margin-bottom: 9px;
+
+    color: #333;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+.radar-legend-scale {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 16px;
+
+    flex-wrap: wrap;
+
+}
+
+.radar-legend-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: #555;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+
+}
+
+.radar-color {
+
+    width: 18px;
+
+    height: 12px;
+
+    border-radius: 3px;
+
+    display: inline-block;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, .08);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Scala intensità precipitazioni
+|--------------------------------------------------------------------------
+*/
+
+.radar-color-1 {
+
+    background: #3b82f6;
+
+}
+
+.radar-color-2 {
+
+    background: #22c55e;
+
+}
+
+.radar-color-3 {
+
+    background: #eab308;
+
+}
+
+.radar-color-4 {
+
+    background: #f97316;
+
+}
+
+.radar-color-5 {
+
+    background: #ef4444;
+
+}
+
+.radar-color-6 {
+
+    background: #a855f7;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Mappa Windy
+|--------------------------------------------------------------------------
+*/
+
+#windy {
+
+    width: 100%;
+
+    height: 80vh;
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Footer
+|--------------------------------------------------------------------------
+*/
+
+.footer {
+
+    text-align: center;
+
+    padding: 15px 20px;
+
+    color: #777;
+
+    font-size: 13px;
+
+}
+
+.footer p {
+
+    margin: 0;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Mobile
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 600px) {
+
+    .header {
+
+        padding: 18px 12px;
+
+    }
+
+    .header h1 {
+
+        font-size: 30px;
+
+    }
+
+    .header p {
+
+        font-size: 14px;
+
+    }
+
+    .toolbar {
+
+        gap: 8px;
+
+        padding-left: 10px;
+
+        padding-right: 10px;
+
+    }
+
+    .toolbar button {
+
+        padding: 10px 14px;
+
+        font-size: 14px;
+
+    }
+
+    .radar-timeline {
+
+        margin-left: 10px;
+
+        margin-right: 10px;
+
+        padding: 12px;
+
+    }
+
+    .radar-timeline-header {
+
+        font-size: 14px;
+
+    }
+
+    .radar-timeline-controls button {
+
+        width: 38px;
+
+        height: 36px;
+
+    }
+
+    .radar-timeline-labels {
+
+        margin-left: 48px;
+
+        margin-right: 48px;
+
+        font-size: 10px;
+
+    }
+
+    .radar-timeline-info {
+
+        font-size: 12px;
+
+    }
+
+    .radar-legend {
+
+        margin-left: 10px;
+
+        margin-right: 10px;
+
+        padding: 10px;
+
+    }
+
+    .radar-legend-scale {
+
+        gap: 9px;
+
+    }
+
+    .radar-legend-item {
+
+        font-size: 10px;
+
+    }
+
+    .radar-color {
+
+        width: 15px;
+
+        height: 10px;
+
+    }
+
+    #radarPlay {
+
+        padding: 8px 20px;
+
+    }
+
+    #windy {
+
+        height: 75vh;
+
+        border-radius: 10px;
+
+    }
+
+}
