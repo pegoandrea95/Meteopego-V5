@@ -218,11 +218,29 @@ function setActiveButton(active) {
 /**
  * Pulsante RainViewer
  */
+/**
+ * Pulsante modalità Precipitazioni
+ */
 function initRainViewerButton() {
 
     const button =
         document.getElementById(
             "btnRainViewer"
+        );
+
+    const radarMode =
+        document.getElementById(
+            "radarMode"
+        );
+
+    const radarTimeline =
+        document.getElementById(
+            "radarTimeline"
+        );
+
+    const radarLegend =
+        document.getElementById(
+            "radarLegend"
         );
 
     if (!button) {
@@ -231,7 +249,21 @@ function initRainViewerButton() {
 
     }
 
-    button.classList.add("active");
+    /*
+     * Stato iniziale:
+     * modalità precipitazioni disattivata.
+     */
+
+    window.rainViewerMode =
+        false;
+
+    setRainViewerMode(
+        false,
+        button,
+        radarMode,
+        radarTimeline,
+        radarLegend
+    );
 
     button.addEventListener(
         "click",
@@ -247,48 +279,136 @@ function initRainViewerButton() {
 
             }
 
-            if (
-                map.hasLayer(
-                    rainViewerLayer
-                )
-            ) {
-
-                /*
-                 * Quando RainViewer viene
-                 * disattivato, fermiamo anche
-                 * l'eventuale animazione.
-                 */
-
-                stopRainViewerAnimation();
-
-                map.removeLayer(
-                    rainViewerLayer
-                );
-
-                button.classList.remove(
-                    "active"
-                );
-
-                console.log(
-                    "🌧 RainViewer disattivato"
-                );
-
-            } else {
-
-                rainViewerLayer.addTo(map);
-
-                button.classList.add(
-                    "active"
-                );
-
-                console.log(
-                    "🌧 RainViewer attivato"
-                );
-
-            }
+            setRainViewerMode(
+                !window.rainViewerMode,
+                button,
+                radarMode,
+                radarTimeline,
+                radarLegend
+            );
 
         }
     );
+
+}
+
+/**
+ * Attiva/disattiva la modalità
+ * radar precipitazioni.
+ */
+function setRainViewerMode(
+    enabled,
+    button,
+    radarMode,
+    radarTimeline,
+    radarLegend
+) {
+
+    window.rainViewerMode =
+        enabled;
+
+    if (enabled) {
+
+        if (rainViewerLayer) {
+
+            rainViewerLayer.addTo(map);
+
+        }
+
+        if (radarMode) {
+
+            radarMode.hidden = false;
+
+        }
+
+        if (radarTimeline) {
+
+            radarTimeline.hidden = false;
+
+        }
+
+        if (radarLegend) {
+
+            radarLegend.hidden = false;
+
+        }
+
+        if (button) {
+
+            button.classList.add(
+                "active"
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                "true"
+            );
+
+            button.innerHTML =
+                "🌧️ Precipitazioni";
+
+        }
+
+        console.log(
+            "🌧️ Modalità precipitazioni attivata"
+        );
+
+    } else {
+
+        stopRainViewerAnimation();
+
+        if (
+            rainViewerLayer &&
+            map.hasLayer(
+                rainViewerLayer
+            )
+        ) {
+
+            map.removeLayer(
+                rainViewerLayer
+            );
+
+        }
+
+        if (radarMode) {
+
+            radarMode.hidden = true;
+
+        }
+
+        if (radarTimeline) {
+
+            radarTimeline.hidden = true;
+
+        }
+
+        if (radarLegend) {
+
+            radarLegend.hidden = true;
+
+        }
+
+        if (button) {
+
+            button.classList.remove(
+                "active"
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                "false"
+            );
+
+            button.innerHTML =
+                "🌧️ Pioggia";
+
+        }
+
+        console.log(
+            "🌧️ Modalità precipitazioni disattivata"
+        );
+
+    }
 
 }
 
@@ -603,6 +723,11 @@ function updateRainViewerTimeline(
             "radarRelativeTime"
         );
 
+    const labels =
+        document.querySelector(
+            ".radar-timeline-labels"
+        );
+
     /*
      * Aggiorna slider
      */
@@ -686,11 +811,14 @@ function updateRainViewerTimeline(
         ) {
 
             const differenceMinutes =
-                Math.round(
-                    (
-                        lastFrame.time -
-                        frame.time
-                    ) / 60
+                Math.max(
+                    0,
+                    Math.round(
+                        (
+                            lastFrame.time -
+                            frame.time
+                        ) / 60
+                    )
                 );
 
             if (
@@ -711,12 +839,164 @@ function updateRainViewerTimeline(
 
     }
 
-}
+    /*
+     * Aggiorna automaticamente
+     * le etichette della timeline.
+     */
 
+    if (
+        labels &&
+        Array.isArray(
+            rainViewerFrames
+        ) &&
+        rainViewerFrames.length > 0
+    ) {
+
+        labels.innerHTML = "";
+
+        const total =
+            rainViewerFrames.length;
+
+        const points =
+            Math.min(
+                5,
+                total
+            );
+
+        const indices = [];
+
+        for (
+            let i = 0;
+            i < points;
+            i++
+        ) {
+
+            const index =
+                points === 1
+                    ? 0
+                    : Math.round(
+                        (
+                            i *
+                            (total - 1)
+                        ) /
+                        (points - 1)
+                    );
+
+            if (
+                !indices.includes(
+                    index
+                )
+            ) {
+
+                indices.push(
+                    index
+                );
+
+            }
+
+        }
+
+        const lastFrame =
+            rainViewerFrames[
+                total - 1
+            ];
+
+        indices.forEach(
+            (
+                index,
+                position
+            ) => {
+
+                const item =
+                    rainViewerFrames[
+                        index
+                    ];
+
+                const span =
+                    document.createElement(
+                        "span"
+                    );
+
+                let text =
+                    "--";
+
+                if (
+                    item &&
+                    item.time &&
+                    lastFrame &&
+                    lastFrame.time
+                ) {
+
+                    const differenceMinutes =
+                        Math.max(
+                            0,
+                            Math.round(
+                                (
+                                    lastFrame.time -
+                                    item.time
+                                ) / 60
+                            )
+                        );
+
+                    if (
+                        differenceMinutes <= 0
+                    ) {
+
+                        text =
+                            "ORA";
+
+                    } else {
+
+                        text =
+                            `−${differenceMinutes} min`;
+
+                    }
+
+                }
+
+                span.textContent =
+                    text;
+
+                if (
+                    position ===
+                    indices.length - 1
+                ) {
+
+                    span.classList.add(
+                        "current"
+                    );
+
+                }
+
+                labels.appendChild(
+                    span
+                );
+
+            }
+        );
+
+    }
+
+}
+/**
+ * Avvia animazione RainViewer
+ */
 /**
  * Avvia animazione RainViewer
  */
 function startRainViewerAnimation() {
+
+    if (
+        !window.rainViewerMode
+    ) {
+
+        console.warn(
+            "🌧️ Modalità precipitazioni non attiva"
+        );
+
+        return;
+
+    }
 
     if (
         !rainViewerFrames ||
@@ -733,31 +1013,14 @@ function startRainViewerAnimation() {
 
     }
 
-    /*
-     * Se il layer è stato disattivato,
-     * lo riattiviamo prima di avviare
-     * l'animazione.
-     */
-
     if (
         rainViewerLayer &&
-        !map.hasLayer(rainViewerLayer)
+        !map.hasLayer(
+            rainViewerLayer
+        )
     ) {
 
         rainViewerLayer.addTo(map);
-
-        const button =
-            document.getElementById(
-                "btnRainViewer"
-            );
-
-        if (button) {
-
-            button.classList.add(
-                "active"
-            );
-
-        }
 
     }
 
@@ -769,6 +1032,16 @@ function startRainViewerAnimation() {
     rainViewerPlayTimer =
         setInterval(
             () => {
+
+                if (
+                    !window.rainViewerMode
+                ) {
+
+                    stopRainViewerAnimation();
+
+                    return;
+
+                }
 
                 let nextIndex =
                     rainViewerFrameIndex + 1;
@@ -842,6 +1115,9 @@ function updateRainViewerPlayButton() {
 /**
  * Crea layer RainViewer
  */
+/**
+ * Crea layer RainViewer
+ */
 function createRainViewerLayer(
     host,
     path
@@ -894,25 +1170,30 @@ function createRainViewerLayer(
     }
 
     /*
-     * Il primo frame viene mostrato
-     * automaticamente.
+     * Mostriamo il nuovo frame soltanto
+     * quando la modalità precipitazioni
+     * è realmente attiva.
      *
-     * Nei cambi frame successivi
-     * manteniamo lo stato ON/OFF
-     * del pulsante Pioggia.
+     * Se la modalità è ON e stavamo già
+     * mostrando RainViewer, manteniamo
+     * la visualizzazione durante il cambio
+     * frame.
      */
 
     if (
-        layerWasVisible ||
-        !window.rainViewerInitialized
+        window.rainViewerMode &&
+        (
+            layerWasVisible ||
+            !window.rainViewerInitialized
+        )
     ) {
 
         rainViewerLayer.addTo(map);
 
-        window.rainViewerInitialized =
-            true;
-
     }
+
+    window.rainViewerInitialized =
+        true;
 
     window.rainViewerLayer =
         rainViewerLayer;
@@ -922,27 +1203,24 @@ function createRainViewerLayer(
             "btnRainViewer"
         );
 
-    if (
-        button &&
-        map.hasLayer(
-            rainViewerLayer
-        )
-    ) {
+    if (button) {
 
-        button.classList.add(
-            "active"
+        button.classList.toggle(
+            "active",
+            !!window.rainViewerMode
         );
 
-    } else if (button) {
-
-        button.classList.remove(
-            "active"
+        button.setAttribute(
+            "aria-pressed",
+            window.rainViewerMode
+                ? "true"
+                : "false"
         );
 
     }
 
     console.log(
-        "✅ Layer RainViewer aggiunto"
+        "✅ Layer RainViewer aggiornato"
     );
 
 }

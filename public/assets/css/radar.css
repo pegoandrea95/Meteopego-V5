@@ -72,25 +72,16 @@ body {
 
     font-size: 16px;
 
+    transition:
+        background .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+
 }
 
 .toolbar button:hover {
 
     background: #1d4ed8;
-
-}
-
-#windy {
-
-    width: 100%;
-
-    height: 80vh;
-
-    border-radius: 15px;
-
-    overflow: hidden;
-
-    box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
 
 }
 
@@ -106,6 +97,30 @@ body {
 
 /*
 |--------------------------------------------------------------------------
+| Modalità Radar precipitazioni
+|--------------------------------------------------------------------------
+*/
+
+.radar-mode {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease;
+
+}
+
+.radar-mode[hidden] {
+
+    display: none;
+
+}
+
+/*
+|--------------------------------------------------------------------------
 | Timeline RainViewer
 |--------------------------------------------------------------------------
 */
@@ -114,7 +129,7 @@ body {
 
     max-width: 1100px;
 
-    margin: 0 auto 20px;
+    margin: 0 auto 12px;
 
     padding: 15px 20px;
 
@@ -244,6 +259,8 @@ body {
 
     cursor: pointer;
 
+    accent-color: #2563eb;
+
 }
 
 /*
@@ -310,11 +327,190 @@ body {
 
     font-size: 15px;
 
+    transition:
+        background .2s ease,
+        transform .2s ease;
+
 }
 
 #radarPlay:hover {
 
     background: #1d4ed8;
+
+    transform: translateY(-1px);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Legenda precipitazioni
+|--------------------------------------------------------------------------
+*/
+
+.radar-legend {
+
+    max-width: 1100px;
+
+    margin: 0 auto 20px;
+
+    padding: 12px 20px;
+
+    background: rgba(255, 255, 255, .96);
+
+    border-radius: 12px;
+
+    box-shadow: 0 5px 16px rgba(0, 0, 0, .08);
+
+}
+
+.radar-legend[hidden] {
+
+    display: none;
+
+}
+
+.radar-legend-title {
+
+    text-align: center;
+
+    margin-bottom: 9px;
+
+    color: #333;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+.radar-legend-scale {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 16px;
+
+    flex-wrap: wrap;
+
+}
+
+.radar-legend-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: #555;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+
+}
+
+.radar-color {
+
+    width: 18px;
+
+    height: 12px;
+
+    border-radius: 3px;
+
+    display: inline-block;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, .08);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Scala intensità precipitazioni
+|--------------------------------------------------------------------------
+*/
+
+.radar-color-1 {
+
+    background: #3b82f6;
+
+}
+
+.radar-color-2 {
+
+    background: #22c55e;
+
+}
+
+.radar-color-3 {
+
+    background: #eab308;
+
+}
+
+.radar-color-4 {
+
+    background: #f97316;
+
+}
+
+.radar-color-5 {
+
+    background: #ef4444;
+
+}
+
+.radar-color-6 {
+
+    background: #a855f7;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Mappa Windy
+|--------------------------------------------------------------------------
+*/
+
+#windy {
+
+    width: 100%;
+
+    height: 80vh;
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Footer
+|--------------------------------------------------------------------------
+*/
+
+.footer {
+
+    text-align: center;
+
+    padding: 15px 20px;
+
+    color: #777;
+
+    font-size: 13px;
+
+}
+
+.footer p {
+
+    margin: 0;
 
 }
 
@@ -325,6 +521,42 @@ body {
 */
 
 @media (max-width: 600px) {
+
+    .header {
+
+        padding: 18px 12px;
+
+    }
+
+    .header h1 {
+
+        font-size: 30px;
+
+    }
+
+    .header p {
+
+        font-size: 14px;
+
+    }
+
+    .toolbar {
+
+        gap: 8px;
+
+        padding-left: 10px;
+
+        padding-right: 10px;
+
+    }
+
+    .toolbar button {
+
+        padding: 10px 14px;
+
+        font-size: 14px;
+
+    }
 
     .radar-timeline {
 
@@ -363,6 +595,50 @@ body {
     .radar-timeline-info {
 
         font-size: 12px;
+
+    }
+
+    .radar-legend {
+
+        margin-left: 10px;
+
+        margin-right: 10px;
+
+        padding: 10px;
+
+    }
+
+    .radar-legend-scale {
+
+        gap: 9px;
+
+    }
+
+    .radar-legend-item {
+
+        font-size: 10px;
+
+    }
+
+    .radar-color {
+
+        width: 15px;
+
+        height: 10px;
+
+    }
+
+    #radarPlay {
+
+        padding: 8px 20px;
+
+    }
+
+    #windy {
+
+        height: 75vh;
+
+        border-radius: 10px;
 
     }
 

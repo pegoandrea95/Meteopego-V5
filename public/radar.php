@@ -32,7 +32,7 @@ $windy = $windyService->getConfig();
 
     <link
         rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+        href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css">
 
 </head>
 
@@ -59,7 +59,8 @@ $windy = $windyService->getConfig();
 
     <button
         type="button"
-        id="btnRainViewer">
+        id="btnRainViewer"
+        aria-pressed="false">
         🌧️ Pioggia
     </button>
 
@@ -83,88 +84,154 @@ $windy = $windyService->getConfig();
 
 </nav>
 
+<!--
+|--------------------------------------------------------------------------
+| Modalità radar precipitazioni
+|--------------------------------------------------------------------------
+|
+| La timeline e la legenda sono nascoste
+| inizialmente e vengono mostrate quando
+| viene attivata la modalità Pioggia.
+|
+-->
+
 <section
-    class="radar-timeline"
-    id="radarTimeline">
+    class="radar-mode"
+    id="radarMode"
+    hidden>
 
-    <div class="radar-timeline-header">
+    <!-- Timeline RainViewer -->
 
-        <strong>
-            🌧️ Radar precipitazioni
-        </strong>
+    <div
+        class="radar-timeline"
+        id="radarTimeline">
 
-        <span id="radarTime">
-            --:--
-        </span>
+        <div class="radar-timeline-header">
+
+            <strong>
+                🌧️ Radar precipitazioni
+            </strong>
+
+            <span id="radarTime">
+                --:--
+            </span>
+
+        </div>
+
+        <div class="radar-timeline-info">
+
+            <span id="radarFrameInfo">
+                0 frame
+            </span>
+
+            <span id="radarRelativeTime">
+                --
+            </span>
+
+        </div>
+
+        <div class="radar-timeline-controls">
+
+            <button
+                type="button"
+                id="radarPrev"
+                aria-label="Frame precedente">
+                ◀
+            </button>
+
+            <input
+                type="range"
+                id="radarSlider"
+                min="0"
+                max="0"
+                value="0"
+                step="1"
+                aria-label="Timeline radar precipitazioni">
+
+            <button
+                type="button"
+                id="radarNext"
+                aria-label="Frame successivo">
+                ▶
+            </button>
+
+        </div>
+
+        <div class="radar-timeline-labels">
+
+            <span>
+                -60 min
+            </span>
+
+            <span>
+                -30 min
+            </span>
+
+            <span>
+                -10 min
+            </span>
+
+            <span>
+                ORA
+            </span>
+
+        </div>
+
+        <div class="radar-timeline-footer">
+
+            <button
+                type="button"
+                id="radarPlay">
+                ▶ Play
+            </button>
+
+        </div>
 
     </div>
 
-    <div class="radar-timeline-info">
+    <!-- Legenda precipitazioni -->
 
-        <span id="radarFrameInfo">
-            0 frame
-        </span>
+    <div
+        class="radar-legend"
+        id="radarLegend">
 
-        <span id="radarRelativeTime">
-            --
-        </span>
+        <div class="radar-legend-title">
+            Intensità precipitazioni
+        </div>
 
-    </div>
+        <div class="radar-legend-scale">
 
-    <div class="radar-timeline-controls">
+            <div class="radar-legend-item">
+                <span class="radar-color radar-color-1"></span>
+                <span>Debole</span>
+            </div>
 
-        <button
-            type="button"
-            id="radarPrev"
-            aria-label="Frame precedente">
-            ◀
-        </button>
+            <div class="radar-legend-item">
+                <span class="radar-color radar-color-2"></span>
+                <span>Moderata</span>
+            </div>
 
-        <input
-            type="range"
-            id="radarSlider"
-            min="0"
-            max="0"
-            value="0"
-            step="1"
-            aria-label="Timeline radar precipitazioni">
+            <div class="radar-legend-item">
+                <span class="radar-color radar-color-3"></span>
+                <span>Forte</span>
+            </div>
 
-        <button
-            type="button"
-            id="radarNext"
-            aria-label="Frame successivo">
-            ▶
-        </button>
+            <div class="radar-legend-item">
+                <span class="radar-color radar-color-4"></span>
+                <span>Molto forte</span>
+            </div>
 
-    </div>
+            <div class="radar-legend-item">
+                <span class="radar-color radar-color-5"></span>
+                <span>Intensa</span>
+            </div>
 
-    <div class="radar-timeline-labels">
+            <div class="radar-legend-item">
+                <span class="radar-color radar-color-6"></span>
+                <span>Estrema</span>
+            </div>
 
-        <span>
-            -60 min
-        </span>
-
-        <span>
-            -30 min
-        </span>
-
-        <span>
-            -10 min
-        </span>
-
-        <span>
-            ORA
-        </span>
-
-    </div>
-
-    <div class="radar-timeline-footer">
-
-        <button
-            type="button"
-            id="radarPlay">
-            ▶ Play
-        </button>
+        </div>
 
     </div>
 
