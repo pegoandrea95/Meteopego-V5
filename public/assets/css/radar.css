@@ -295,6 +295,14 @@ body {
 
 }
 
+.radar-timeline-labels span.nowcast-placeholder:last-child {
+
+    color: #b8bec8 !important;
+
+    font-weight: 600 !important;
+
+}
+
 /*
 |--------------------------------------------------------------------------
 | Pulsante Play
@@ -639,6 +647,71 @@ body {
         height: 75vh;
 
         border-radius: 10px;
+
+    }
+
+}
+/*
+|--------------------------------------------------------------------------
+| Timeline nowcast
+|--------------------------------------------------------------------------
+*/
+
+.radar-timeline-labels .nowcast-separator {
+
+    color: #2563eb;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+.radar-timeline-labels .nowcast-placeholder {
+
+    color: #b8bec8;
+
+    font-weight: 600;
+
+    opacity: 0.65;
+
+    white-space: nowrap;
+
+}
+
+.radar-timeline-labels .radar-past-label {
+
+    white-space: nowrap;
+
+}
+
+.radar-timeline-labels .current {
+
+    color: #2563eb;
+
+    font-weight: 700;
+
+}
+
+@media (max-width: 900px) {
+
+    .radar-timeline-labels {
+
+        gap: 8px;
+
+        overflow-x: auto;
+
+        justify-content: flex-start;
+
+        padding-bottom: 3px;
+
+        scrollbar-width: thin;
+
+    }
+
+    .radar-timeline-labels span {
+
+        flex: 0 0 auto;
 
     }
 

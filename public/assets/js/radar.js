@@ -948,107 +948,63 @@ function updateRainViewerTimeline(
         labels.innerHTML = "";
 
         /*
-         * Se non esiste nowcast,
-         * manteniamo la timeline attuale:
-         * cinque punti distribuiti sui frame reali.
+         * Se non esiste nowcast:
+         *
+         * manteniamo i riferimenti temporali
+         * del radar osservato e mostriamo
+         * comunque la sezione futura.
+         *
+         * I valori +... sono placeholder
+         * finché RainViewer non fornisce
+         * frame nowcast reali.
          */
 
         if (
             nowcastFrames.length === 0
         ) {
 
-            const total =
-                pastFrames.length;
+            const pastLabels = [
+                "−120 min",
+                "−90 min",
+                "−60 min",
+                "−30 min",
+                "ORA"
+            ];
 
-            const points =
-                Math.min(
-                    5,
-                    total
-                );
+            const futureLabels = [
+                "+10 min",
+                "+20 min",
+                "+30 min",
+                "+60 min",
+                "+90 min",
+                "+120 min"
+            ];
 
-            const indices = [];
+            /*
+             * Radar osservato.
+             */
 
-            for (
-                let i = 0;
-                i < points;
-                i++
-            ) {
-
-                const index =
-                    points === 1
-                        ? 0
-                        : Math.round(
-                            (
-                                i *
-                                (total - 1)
-                            ) /
-                            (points - 1)
-                        );
-
-                if (
-                    !indices.includes(
-                        index
-                    )
-                ) {
-
-                    indices.push(
-                        index
-                    );
-
-                }
-
-            }
-
-            indices.forEach(
+            pastLabels.forEach(
                 (
-                    index,
-                    position
+                    label,
+                    index
                 ) => {
-
-                    const item =
-                        pastFrames[
-                            index
-                        ];
 
                     const span =
                         document.createElement(
                             "span"
                         );
 
-                    let text =
-                        "--";
-
-                    if (
-                        item &&
-                        item.time &&
-                        lastPastFrame &&
-                        lastPastFrame.time
-                    ) {
-
-                        const differenceMinutes =
-                            Math.max(
-                                0,
-                                Math.round(
-                                    (
-                                        lastPastFrame.time -
-                                        item.time
-                                    ) / 60
-                                )
-                            );
-
-                        text =
-                            differenceMinutes <= 0
-                                ? "ORA"
-                                : `−${differenceMinutes} min`;
-
-                    }
-
                     span.textContent =
-                        text;
+                        label;
+
+                    span.classList.add(
+                        "radar-past-label"
+                    );
 
                     if (
-                        position ===
-                        indices.length - 1
+                        index ===
+                        pastLabels.length - 1
                     ) {
 
                         span.classList.add(
@@ -1056,6 +1012,56 @@ function updateRainViewerTimeline(
                         );
 
                     }
+
+                    labels.appendChild(
+                        span
+                    );
+
+                }
+            );
+
+            /*
+             * Separatore tra radar reale
+             * e zona nowcast.
+             */
+
+            const separator =
+                document.createElement(
+                    "span"
+                );
+
+            separator.textContent =
+                "│ NOWCAST";
+
+            separator.classList.add(
+                "nowcast-separator"
+            );
+
+            labels.appendChild(
+                separator
+            );
+
+            /*
+             * Zona previsione.
+             *
+             * Per ora sono placeholder:
+             * non rappresentano dati reali.
+             */
+
+            futureLabels.forEach(
+                label => {
+
+                    const span =
+                        document.createElement(
+                            "span"
+                        );
+
+                    span.textContent =
+                        label;
+
+                    span.classList.add(
+                        "nowcast-placeholder"
+                    );
 
                     labels.appendChild(
                         span
