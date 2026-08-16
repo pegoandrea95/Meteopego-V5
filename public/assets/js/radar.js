@@ -467,14 +467,75 @@ async function initRainViewer() {
 
         }
 
-        rainViewerFrames =
+        /*
+         * Frame radar osservati
+         */
+
+        const pastFrames =
             data.radar.past;
 
+        /*
+         * Frame nowcast.
+         *
+         * RainViewer può restituire
+         * un array vuoto quando il nowcast
+         * non è disponibile.
+         */
+
+        const nowcastFrames =
+            Array.isArray(
+                data.radar.nowcast
+            )
+                ? data.radar.nowcast
+                : [];
+
+        /*
+         * Manteniamo separati i due gruppi.
+         */
+
+        window.rainViewerPastFrames =
+            pastFrames;
+
+        window.rainViewerNowcastFrames =
+            nowcastFrames;
+
+        /*
+         * Per ora la timeline utilizza
+         * tutti i frame disponibili.
+         *
+         * Se il nowcast è vuoto:
+         *
+         * past + []
+         *
+         * quindi il comportamento rimane
+         * esattamente quello attuale.
+         */
+
+        rainViewerFrames = [
+            ...pastFrames,
+            ...nowcastFrames
+        ];
+
+        /*
+         * Partiamo dall'ultimo frame osservato,
+         * non dall'ultimo frame nowcast.
+         */
+
         rainViewerFrameIndex =
-            rainViewerFrames.length - 1;
+            pastFrames.length - 1;
 
         console.log(
-            "🌧 Frame RainViewer disponibili:",
+            "🌧 Frame radar osservati:",
+            pastFrames.length
+        );
+
+        console.log(
+            "🔮 Frame nowcast:",
+            nowcastFrames.length
+        );
+
+        console.log(
+            "🌧 Totale frame RainViewer:",
             rainViewerFrames.length
         );
 
@@ -495,7 +556,6 @@ async function initRainViewer() {
     }
 
 }
-
 /**
  * Inizializza i controlli della timeline
  */
@@ -748,16 +808,13 @@ function updateRainViewerTimeline(
     }
 
     /*
-     * Numero di frame disponibili
+     * Numero totale di frame
      */
 
     if (frameInfo) {
 
-        const totalFrames =
-            rainViewerFrames.length;
-
         frameInfo.textContent =
-            `${totalFrames} frame`;
+            `${rainViewerFrames.length} frame`;
 
     }
 
@@ -788,26 +845,66 @@ function updateRainViewerTimeline(
     }
 
     /*
-     * Calcola la distanza temporale
-     * del frame rispetto all'ultimo
-     * frame disponibile.
+     * Individua l'ultimo frame osservato.
+     */
+
+    const pastFrames =
+        Array.isArray(
+            window.rainViewerPastFrames
+        )
+            ? window.rainViewerPastFrames
+            : [];
+
+    const nowcastFrames =
+        Array.isArray(
+            window.rainViewerNowcastFrames
+        )
+            ? window.rainViewerNowcastFrames
+            : [];
+
+    const lastPastFrame =
+        pastFrames.length > 0
+            ? pastFrames[
+                pastFrames.length - 1
+            ]
+            : null;
+
+    /*
+     * Calcola la posizione temporale
+     * del frame selezionato.
      */
 
     if (
         relativeTime &&
         frame &&
-        frame.time &&
-        rainViewerFrames.length > 0
+        frame.time
     ) {
 
-        const lastFrame =
-            rainViewerFrames[
-                rainViewerFrames.length - 1
-            ];
-
         if (
-            lastFrame &&
-            lastFrame.time
+            nowcastFrames.length > 0 &&
+            lastPastFrame &&
+            lastPastFrame.time &&
+            frame.time >
+            lastPastFrame.time
+        ) {
+
+            const futureMinutes =
+                Math.max(
+                    0,
+                    Math.round(
+                        (
+                            frame.time -
+                            lastPastFrame.time
+                        ) / 60
+                    )
+                );
+
+            relativeTime.textContent =
+                `+${futureMinutes} min`;
+
+        } else if (
+            lastPastFrame &&
+            lastPastFrame.time
         ) {
 
             const differenceMinutes =
@@ -815,7 +912,7 @@ function updateRainViewerTimeline(
                     0,
                     Math.round(
                         (
-                            lastFrame.time -
+                            lastPastFrame.time -
                             frame.time
                         ) / 60
                     )
@@ -840,55 +937,247 @@ function updateRainViewerTimeline(
     }
 
     /*
-     * Aggiorna automaticamente
-     * le etichette della timeline.
+     * Aggiorna le etichette della timeline.
      */
 
     if (
         labels &&
-        Array.isArray(
-            rainViewerFrames
-        ) &&
         rainViewerFrames.length > 0
     ) {
 
         labels.innerHTML = "";
 
-        const total =
-            rainViewerFrames.length;
+        /*
+         * Se non esiste nowcast,
+         * manteniamo la timeline attuale:
+         * cinque punti distribuiti sui frame reali.
+         */
 
-        const points =
-            Math.min(
-                5,
-                total
+        if (
+            nowcastFrames.length === 0
+        ) {
+
+            const total =
+                pastFrames.length;
+
+            const points =
+                Math.min(
+                    5,
+                    total
+                );
+
+            const indices = [];
+
+            for (
+                let i = 0;
+                i < points;
+                i++
+            ) {
+
+                const index =
+                    points === 1
+                        ? 0
+                        : Math.round(
+                            (
+                                i *
+                                (total - 1)
+                            ) /
+                            (points - 1)
+                        );
+
+                if (
+                    !indices.includes(
+                        index
+                    )
+                ) {
+
+                    indices.push(
+                        index
+                    );
+
+                }
+
+            }
+
+            indices.forEach(
+                (
+                    index,
+                    position
+                ) => {
+
+                    const item =
+                        pastFrames[
+                            index
+                        ];
+
+                    const span =
+                        document.createElement(
+                            "span"
+                        );
+
+                    let text =
+                        "--";
+
+                    if (
+                        item &&
+                        item.time &&
+                        lastPastFrame &&
+                        lastPastFrame.time
+                    ) {
+
+                        const differenceMinutes =
+                            Math.max(
+                                0,
+                                Math.round(
+                                    (
+                                        lastPastFrame.time -
+                                        item.time
+                                    ) / 60
+                                )
+                            );
+
+                        text =
+                            differenceMinutes <= 0
+                                ? "ORA"
+                                : `−${differenceMinutes} min`;
+
+                    }
+
+                    span.textContent =
+                        text;
+
+                    if (
+                        position ===
+                        indices.length - 1
+                    ) {
+
+                        span.classList.add(
+                            "current"
+                        );
+
+                    }
+
+                    labels.appendChild(
+                        span
+                    );
+
+                }
             );
 
-        const indices = [];
+            return;
+
+        }
+
+        /*
+         * Con nowcast disponibile:
+         * costruiamo una timeline composta
+         * da passato + ORA + futuro.
+         *
+         * ORA viene sempre inserita esplicitamente
+         * come punto centrale della transizione.
+         */
+
+        const timelineFrames = [
+            ...pastFrames,
+            ...nowcastFrames
+        ];
+
+        const total =
+            timelineFrames.length;
+
+        const nowIndex =
+            pastFrames.length - 1;
+
+        /*
+         * Selezioniamo alcuni punti del passato
+         * e alcuni del futuro, mantenendo sempre
+         * visibile il punto ORA.
+         */
+
+        const selectedIndices = new Set();
+
+        selectedIndices.add(
+            nowIndex
+        );
+
+        /*
+         * Quattro punti rappresentativi
+         * del passato.
+         */
+
+        const pastPoints =
+            Math.min(
+                4,
+                pastFrames.length
+            );
 
         for (
             let i = 0;
-            i < points;
+            i < pastPoints;
             i++
         ) {
 
             const index =
-                points === 1
+                pastPoints === 1
                     ? 0
                     : Math.round(
                         (
                             i *
-                            (total - 1)
+                            nowIndex
                         ) /
-                        (points - 1)
+                        (pastPoints - 1)
                     );
 
+            selectedIndices.add(
+                index
+            );
+
+        }
+
+        /*
+         * Quattro punti rappresentativi
+         * del nowcast.
+         */
+
+        const futureCount =
+            nowcastFrames.length;
+
+        const futurePoints =
+            Math.min(
+                4,
+                futureCount
+            );
+
+        for (
+            let i = 0;
+            i < futurePoints;
+            i++
+        ) {
+
+            const futureOffset =
+                futurePoints === 1
+                    ? futureCount
+                    : Math.round(
+                        (
+                            (i + 1) *
+                            futureCount
+                        ) /
+                        futurePoints
+                    );
+
+            const index =
+                nowIndex +
+                Math.min(
+                    futureOffset,
+                    futureCount
+                );
+
             if (
-                !indices.includes(
-                    index
-                )
+                index <
+                total
             ) {
 
-                indices.push(
+                selectedIndices.add(
                     index
                 );
 
@@ -896,19 +1185,21 @@ function updateRainViewerTimeline(
 
         }
 
-        const lastFrame =
-            rainViewerFrames[
-                total - 1
-            ];
+        const indices =
+            Array.from(
+                selectedIndices
+            ).sort(
+                (a, b) =>
+                    a - b
+            );
 
         indices.forEach(
             (
-                index,
-                position
+                index
             ) => {
 
                 const item =
-                    rainViewerFrames[
+                    timelineFrames[
                         index
                     ];
 
@@ -923,32 +1214,46 @@ function updateRainViewerTimeline(
                 if (
                     item &&
                     item.time &&
-                    lastFrame &&
-                    lastFrame.time
+                    lastPastFrame &&
+                    lastPastFrame.time
                 ) {
 
                     const differenceMinutes =
-                        Math.max(
-                            0,
-                            Math.round(
-                                (
-                                    lastFrame.time -
-                                    item.time
-                                ) / 60
-                            )
+                        Math.round(
+                            (
+                                item.time -
+                                lastPastFrame.time
+                            ) / 60
                         );
 
                     if (
-                        differenceMinutes <= 0
+                        differenceMinutes > 0
+                    ) {
+
+                        text =
+                            `+${differenceMinutes} min`;
+
+                        span.classList.add(
+                            "nowcast"
+                        );
+
+                    } else if (
+                        differenceMinutes === 0
                     ) {
 
                         text =
                             "ORA";
 
+                        span.classList.add(
+                            "current"
+                        );
+
                     } else {
 
                         text =
-                            `−${differenceMinutes} min`;
+                            `−${Math.abs(
+                                differenceMinutes
+                            )} min`;
 
                     }
 
@@ -957,27 +1262,16 @@ function updateRainViewerTimeline(
                 span.textContent =
                     text;
 
-                if (
-                    position ===
-                    indices.length - 1
-                ) {
-
-                    span.classList.add(
-                        "current"
-                    );
-
-                }
-
                 labels.appendChild(
                     span
                 );
 
             }
         );
-
     }
 
 }
+
 /**
  * Avvia animazione RainViewer
  */
